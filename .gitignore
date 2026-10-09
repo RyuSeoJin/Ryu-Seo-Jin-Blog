@@ -37,3 +37,5 @@ yarn-error.log*
 # public/sitemap.xml
 
 /.firebase
+# generated at build
+/public/feed.xml

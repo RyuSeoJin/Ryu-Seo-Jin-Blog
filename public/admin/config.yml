@@ -1,0 +1,59 @@
+# 웹 관리자 화면(/admin) 설정 — Decap CMS
+# 저장하면 GitHub 저장소에 커밋되고, Vercel 이 자동으로 다시 배포합니다.
+locale: ko
+backend:
+  name: github
+  repo: RyuSeoJin/morethan-log
+  branch: main
+  base_url: https://ryuseojin.com
+  auth_endpoint: api/decap/auth
+  commit_messages:
+    create: "글 작성: {{slug}}"
+    update: "글 수정: {{slug}}"
+    delete: "글 삭제: {{slug}}"
+    uploadMedia: "이미지 업로드: {{path}}"
+    deleteMedia: "이미지 삭제: {{path}}"
+
+# 새로 올리는 이미지는 여기에 저장됩니다
+media_folder: public/images/uploads
+public_folder: /images/uploads
+
+site_url: https://ryuseojin.com
+display_url: https://ryuseojin.com
+
+collections:
+  - name: posts
+    label: 글
+    label_singular: 글
+    folder: content/posts
+    create: true
+    slug: "{{fields.slug}}"
+    identifier_field: title
+    summary: "{{date}} · {{title}}"
+    sortable_fields: ["date", "title", "category"]
+    view_filters:
+      - { label: 공개, field: status, pattern: public }
+      - { label: 임시저장, field: status, pattern: draft }
+    preview_path: "{{slug}}"
+    fields:
+      - { label: 제목, name: title, widget: string }
+      - { label: 주소(slug), name: slug, widget: string, hint: "영문 소문자와 - 만 쓰세요. 예) wiki-unity-tilemap", pattern: ["^[a-z0-9-]+$", "영문 소문자, 숫자, - 만 쓸 수 있어요"] }
+      - { label: 날짜, name: date, widget: datetime, format: "YYYY-MM-DD", date_format: "YYYY-MM-DD", time_format: false }
+      - label: 공개 상태
+        name: status
+        widget: select
+        default: draft
+        options:
+          - { label: "공개 (목록에 보임)", value: public }
+          - { label: "링크로만 공개", value: unlisted }
+          - { label: "임시저장 (사이트에 안 보임)", value: draft }
+      - label: 카테고리
+        name: category
+        widget: select
+        required: false
+        options: ["📔 위키", "👾 Unity", "🕹️ 프로젝트", "🃏 Unreal Engine", "🥖블렌더", "💠깃허브", "📟 아카이브", "🔸사이트 링크", "😎 Daily"]
+      - { label: 태그, name: tags, widget: list, required: false, hint: "\"순서::분류::이름\" 형식. 예) 4::WIKI::용어" }
+      - { label: 요약, name: summary, widget: text, required: false }
+      - { label: 대표 이미지, name: thumbnail, widget: image, required: false }
+      - { label: 본문, name: body, widget: markdown }
+      - { label: 글 유형, name: type, widget: hidden, default: Post }

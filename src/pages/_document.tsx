@@ -1,49 +1,29 @@
-import Document, { Html, Head, Main, NextScript } from "next/document"
+import { Head, Html, Main, NextScript } from "next/document"
 import { CONFIG } from "site.config"
 
-class MyDocument extends Document {
-  render() {
-    return (
-      <Html lang={CONFIG.lang}>
-        <Head>
-          <link rel="icon" href="/favicon.ico" />
-          <link
-            rel="apple-touch-icon"
-            sizes="192x192"
-            href="/apple-touch-icon.png"
-          ></link>
-          <link
-            rel="alternate"
-            type="application/rss+xml"
-            title="RSS 2.0"
-            href="/feed"
-          ></link>
-          {/* google search console */}
-          {CONFIG.googleSearchConsole.enable === true && (
-            <>
-              <meta
-                name="google-site-verification"
-                content={CONFIG.googleSearchConsole.config.siteVerification}
-              />
-            </>
-          )}
-          {/* naver search advisor */}
-          {CONFIG.naverSearchAdvisor.enable === true && (
-            <>
-              <meta
-                name="naver-site-verification"
-                content={CONFIG.naverSearchAdvisor.config.siteVerification}
-              />
-            </>
-          )}
-        </Head>
-        <body>
-          <Main />
-          <NextScript />
-        </body>
-      </Html>
-    )
-  }
-}
+// 저장된 테마 → 없으면 설정값(scheme) → system 이면 OS 설정. 화면이 그려지기 전에 정해 깜빡임을 막습니다.
+const themeScript = `(function(){try{var s=localStorage.getItem('theme');var d=${JSON.stringify(CONFIG.blog.scheme)};var t=s||(d==='system'?(matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light'):d);document.documentElement.dataset.theme=t;}catch(e){document.documentElement.dataset.theme='dark';}})();`
 
-export default MyDocument
+export default function Document() {
+  return (
+    <Html lang="ko">
+      <Head>
+        <meta charSet="utf-8" />
+        <link rel="icon" href="/favicon.ico" />
+        <link rel="apple-touch-icon" sizes="192x192" href="/apple-touch-icon.png" />
+        <link rel="alternate" type="application/rss+xml" title={CONFIG.blog.title} href="/feed" />
+        {/* Pretendard 다이나믹 서브셋: 화면에 나온 글자 묶음만 내려받습니다 (전체 9종 7MB → 보통 수백 KB) */}
+        <link rel="preconnect" href="https://cdn.jsdelivr.net" crossOrigin="anonymous" />
+        <link
+          rel="stylesheet"
+          href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css"
+        />
+        <script dangerouslySetInnerHTML={{ __html: themeScript }} />
+      </Head>
+      <body>
+        <Main />
+        <NextScript />
+      </body>
+    </Html>
+  )
+}
