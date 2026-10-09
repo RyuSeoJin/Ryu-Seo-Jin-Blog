@@ -5,15 +5,13 @@ import { CONFIG } from "site.config"
 import { fetchThread, react, REACTION_KINDS, type Reaction } from "src/lib/comments"
 import { ago, REACTIONS, refreshCommunity, type Community } from "src/lib/community"
 import { hasSession, login, syncSession } from "src/lib/session"
+import { postitStyle } from "src/lib/postit"
 import NoteDialog from "./NoteDialog"
 
 const PINNED: string = (CONFIG as any).guestbookPinned || ""
 
 type Props = { status: "loading" | "ready" | "error"; data: Community | null }
 
-// 클래식 포스트잇 색 (채도를 한 단계 낮춰 보라 테마와 부딪히지 않게)
-const COLORS = ["#fff4b8", "#d9f5e0", "#ffdbe6", "#dbe8ff", "#ffe6c7"]
-const TILTS = [-2, 1.5, -1, 2, -1.5]
 
 // 방명록 작성칸으로 바로 가는 주소 (새 탭으로 열 때. 방명록 페이지가 write=1 을 보면 작성칸으로 스크롤)
 const WRITE_URL = "/guestbook?write=1"
@@ -142,7 +140,7 @@ export default function GuestStrip({ status, data }: Props) {
                   <span className="postit-who">{CONFIG.profile.name} · 주인장 · {ago(n.createdAt)}</span>
                 </Link>
               ) : (
-                <Link key={n.id} href="/guestbook" className="postit" style={{ background: COLORS[i % COLORS.length], transform: `rotate(${TILTS[i % TILTS.length]}deg)` }}>
+                <Link key={n.id} href="/guestbook" className="postit" style={postitStyle(i)}>
                   <span className="postit-body">{n.body || "(내용 없음)"}</span>
                   <span className="postit-who">{n.login} · {ago(n.createdAt)}</span>
                 </Link>

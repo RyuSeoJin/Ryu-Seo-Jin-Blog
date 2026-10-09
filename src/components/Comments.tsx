@@ -1,11 +1,13 @@
 import { useRouter } from "next/router"
 import { useCallback, useEffect, useMemo, useRef, useState, type KeyboardEvent } from "react"
+import { createPortal } from "react-dom"
 import { CONFIG } from "site.config"
 import {
   fetchThread, MAX_LEN, postComment, react, REACTION_KINDS, removeComment, stamp,
   type Comment, type Reaction, type Thread,
 } from "src/lib/comments"
 import { refreshCommunity } from "src/lib/community"
+import { postitStyle } from "src/lib/postit"
 import { getViewer, login, setViewer, type Viewer } from "src/lib/session"
 import { MoreIcon, RefreshIcon, SendIcon, ThumbDownIcon, ThumbUpIcon } from "./Icons"
 
@@ -19,6 +21,8 @@ type Props = {
   discussionReactions?: boolean
   placeholder?: string
   onPosted?: () => void
+  /** 목록을 포스트잇 게시판으로 보여 줍니다 (방명록 페이지). 포스트잇을 누르면 좋아요·답글 창이 열려요. */
+  board?: boolean
 }
 
 const OWNER = CONFIG.profile.github.toLowerCase()
@@ -31,7 +35,7 @@ const BEST_MIN_UP = 3
  * 블로그 자체 댓글 창 (GitHub Discussions 에 저장, GitHub 로그인).
  * 인기/최신 탭, BEST, 좋아요·싫어요, 답글을 지원합니다. 서버 쪽은 src/pages/api/comments.
  */
-export default function Comments({ term, title = "댓글", composeOnly, discussionReactions, placeholder, onPosted }: Props) {
+export default function Comments({ term, title = "댓글", composeOnly, discussionReactions, placeholder, onPosted, board }: Props) {
   const { asPath } = useRouter()
   const key = term ?? asPath.split(/[?#]/)[0].replace(/^\//, "")
   const [viewer, setV] = useState<Viewer | null>(null)
@@ -39,6 +43,8 @@ export default function Comments({ term, title = "댓글", composeOnly, discussi
   const [status, setStatus] = useState<"loading" | "ready" | "error">("loading")
   const [tab, setTab] = useState<"best" | "new">("best")
   const [shown, setShown] = useState(PAGE)
+  // 포스트잇 게시판에서 펼쳐 본 포스트잇
+  const [openId, setOpenId] = useState<string | null>(null)
   // 정렬은 불러올 때·탭을 바꿀 때만 다시 합니다 (좋아요를 누르는 동안 댓글이 자리를 옮기지 않게)
   const [loadedAt, setLoadedAt] = useState(0)
 
@@ -189,6 +195,29 @@ export default function Comments({ term, title = "댓글", composeOnly, discussi
         <p className="cmt-empty">불러오는 중…</p>
       ) : sorted.length === 0 ? (
         <p className="cmt-empty">첫 댓글을 남겨 주세요.</p>
+      ) : board ? (
+        <ul className="board">
+          {sorted.slice(0, shown).map((c, i) => {
+            const owner = c.author?.login.toLowerCase() === OWNER
+            return (
+              <li key={c.id}>
+                <button type="button" className={owner ? "postit board-note postit-pinned" : "postit board-note"} style={postitStyle(i, owner)} onClick={() => setOpenId(c.id)}>
+                  <span className="postit-body">
+                    {isBest(c, i) && <em className="cmt-best">BEST</em>}
+                    {c.body || "삭제된 포스트잇이에요."}
+                  </span>
+                  <span className="board-foot">
+                    <span className="postit-who">{c.author?.login ?? "알 수 없음"}{owner && " · 주인장"} · {stamp(c.createdAt).slice(2, 10)}</span>
+                    <span className="board-stats" aria-label={`좋아요 ${c.up}, 답글 ${c.replyCount}`}>
+                      {c.up > 0 && <span>👍 {c.up}</span>}
+                      {c.replyCount > 0 && <span>💬 {c.replyCount}</span>}
+                    </span>
+                  </span>
+                </button>
+              </li>
+            )
+          })}
+        </ul>
       ) : (
         <ul className="cmt-list">
           {sorted.slice(0, shown).map((c, i) => (
@@ -205,8 +234,19 @@ export default function Comments({ term, title = "댓글", composeOnly, discussi
         </ul>
       )}
       {sorted.length > shown && (
-        <button className="cmt-more" onClick={() => setShown((n) => n + PAGE)}>댓글 더보기 ({sorted.length - shown})</button>
+        <button className="cmt-more" onClick={() => setShown((n) => n + PAGE)}>{board ? "포스트잇" : "댓글"} 더보기 ({sorted.length - shown})</button>
       )}
+      {board && openId && (() => {
+        const c = list.find((x) => x.id === openId)
+        if (!c) return null
+        return (
+          <NoteDetail onClose={() => setOpenId(null)}>
+            <ul className="cmt-list">
+              <Item c={c} viewer={viewer} onReact={onReact} onDelete={(x) => { setOpenId(null); onDelete(x) }} onReply={(b) => onPost(b, c.id)} defaultOpen />
+            </ul>
+          </NoteDetail>
+        )
+      })()}
     </section>
   )
 }
@@ -273,7 +313,33 @@ function Composer({ viewer, placeholder, onSubmit, autoFocus, reply }: {
   )
 }
 
-function Item({ c, best, viewer, onReact, onDelete, onReply, isReply }: {
+/** 포스트잇을 눌렀을 때 뜨는 창: 좋아요·싫어요·답글 */
+function NoteDetail({ onClose, children }: { onClose: () => void; children: React.ReactNode }) {
+  useEffect(() => {
+    const onKey = (e: globalThis.KeyboardEvent) => { if (e.key === "Escape") onClose() }
+    window.addEventListener("keydown", onKey)
+    const prev = document.body.style.overflow
+    document.body.style.overflow = "hidden"
+    return () => {
+      window.removeEventListener("keydown", onKey)
+      document.body.style.overflow = prev
+    }
+  }, [onClose])
+  return createPortal(
+    <div className="note-backdrop" onClick={(e) => { if (e.target === e.currentTarget) onClose() }}>
+      <div className="note-dialog board-detail" role="dialog" aria-modal="true" aria-label="포스트잇 자세히 보기">
+        <div className="note-dialog-head">
+          <b>포스트잇</b>
+          <button type="button" className="note-close" onClick={onClose} aria-label="닫기">×</button>
+        </div>
+        {children}
+      </div>
+    </div>,
+    document.body
+  )
+}
+
+function Item({ c, best, viewer, onReact, onDelete, onReply, isReply, defaultOpen }: {
   c: Comment
   best?: boolean
   viewer: Viewer | null
@@ -281,8 +347,10 @@ function Item({ c, best, viewer, onReact, onDelete, onReply, isReply }: {
   onDelete: (c: Comment) => void
   onReply?: (body: string) => Promise<void>
   isReply?: boolean
+  /** 답글을 처음부터 펼쳐 둘지 (포스트잇 자세히 보기) */
+  defaultOpen?: boolean
 }) {
-  const [open, setOpen] = useState(false)
+  const [open, setOpen] = useState(!!defaultOpen)
   const [menu, setMenu] = useState(false)
   const menuRef = useRef<HTMLDivElement>(null)
   const a = c.author

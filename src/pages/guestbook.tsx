@@ -28,7 +28,7 @@ export default function Guestbook() {
     <>
       <Seo title="방명록" description="블로그에 자유롭게 인사나 의견을 남겨 주세요." path="/guestbook" />
       <div className="container article-wrap" style={{ gridTemplateColumns: "minmax(0, 760px)" }}>
-        <article className="article">
+        <article className="article gb-page">
           <header className="article-head">
             <span className="cat">방명록</span>
             <h1>방명록</h1>
@@ -38,7 +38,7 @@ export default function Guestbook() {
             </p>
           </header>
           <div ref={box} style={{ scrollMarginTop: "calc(var(--header-h) + 16px)" }}>
-            <Comments term="guestbook" title="방명록" discussionReactions placeholder="한마디를 남겨 주세요. 메인 화면 방명록 띠에 포스트잇으로 붙어요." />
+            <Comments term="guestbook" title="방명록" discussionReactions board placeholder="한마디를 남겨 주세요. 메인 화면 방명록 띠에 포스트잇으로 붙어요." />
           </div>
         </article>
       </div>
