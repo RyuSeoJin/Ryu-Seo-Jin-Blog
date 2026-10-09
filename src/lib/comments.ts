@@ -3,6 +3,8 @@
 export type Author = { login: string; avatarUrl: string; url: string }
 export type Comment = {
   id: string
+  /** GitHub 숫자 id (공개 REST API 의 댓글 id 와 같음) */
+  dbId: number
   url: string
   body: string
   createdAt: string

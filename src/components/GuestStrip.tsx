@@ -2,7 +2,7 @@ import Link from "next/link"
 import { useRouter } from "next/router"
 import { useCallback, useEffect, useRef, useState, type MouseEvent } from "react"
 import { CONFIG } from "site.config"
-import { fetchThread, react, REACTION_KINDS, type Reaction } from "src/lib/comments"
+import { fetchThread, react, REACTION_KINDS, type Comment, type Reaction } from "src/lib/comments"
 import { ago, REACTIONS, refreshCommunity, type Community } from "src/lib/community"
 import { hasSession, login, syncSession } from "src/lib/session"
 import { postitStyle } from "src/lib/postit"
@@ -38,8 +38,16 @@ export default function GuestStrip({ status, data }: Props) {
 
   // 방명록 반응: 띠 아래 줄에서 바로 누릅니다. 내가 누른 것까지 알기 위해 댓글 API 로 읽습니다.
   const [reactions, setReactions] = useState<Reaction[] | null>(null)
+  // 포스트잇마다 답글·좋아요·싫어요 수 (GitHub 댓글 번호로 짝을 맞춥니다)
+  const [stats, setStats] = useState<Map<number, Comment>>(new Map())
   useEffect(() => {
-    const read = () => fetchThread("guestbook").then((t) => setReactions(t.reactions)).catch(() => {})
+    const read = () =>
+      fetchThread("guestbook")
+        .then((t) => {
+          setReactions(t.reactions)
+          setStats(new Map(t.comments.map((c) => [c.dbId, c])))
+        })
+        .catch(() => {})
     read()
     window.addEventListener("sessionchange", read)
     return () => window.removeEventListener("sessionchange", read)
@@ -138,11 +146,13 @@ export default function GuestStrip({ status, data }: Props) {
                 <Link key={n.id} href="/guestbook" className="postit postit-pinned" style={{ background: "#ffffff", transform: "rotate(-1deg)" }}>
                   <span className="postit-body">{n.body || "(내용 없음)"}</span>
                   <span className="postit-who">{CONFIG.profile.name} · 주인장 · {ago(n.createdAt)}</span>
+                  <NoteStats c={stats.get(n.id)} />
                 </Link>
               ) : (
                 <Link key={n.id} href="/guestbook" className="postit" style={postitStyle(i)}>
                   <span className="postit-body">{n.body || "(내용 없음)"}</span>
                   <span className="postit-who">{n.login} · {ago(n.createdAt)}</span>
+                  <NoteStats c={stats.get(n.id)} />
                 </Link>
               )
             )}
@@ -167,5 +177,16 @@ export default function GuestStrip({ status, data }: Props) {
       )}
       {writing && <NoteDialog onClose={closeDialog} />}
     </section>
+  )
+}
+
+/** 포스트잇 안 아랫줄: 답글·좋아요·싫어요 수 */
+function NoteStats({ c }: { c?: Comment }) {
+  return (
+    <span className="board-stats" aria-label={`답글 ${c?.replyCount ?? 0}개, 좋아요 ${c?.up ?? 0}, 싫어요 ${c?.down ?? 0}`}>
+      <span>💬 {c?.replyCount ?? 0}</span>
+      <span>👍 {c?.up ?? 0}</span>
+      <span>👎 {c?.down ?? 0}</span>
+    </span>
   )
 }

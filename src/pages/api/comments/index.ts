@@ -2,12 +2,13 @@ import type { NextApiRequest, NextApiResponse } from "next"
 import { MAX_LEN, REACTION_KINDS, type Comment, type Reaction, type Thread } from "src/lib/comments"
 import { appToken, ensureDiscussion, fail, findDiscussion, getAuth, gql, HttpError, sameOrigin, signOut, validTerm } from "src/lib/server/github"
 
-const FIELDS = `id url body createdAt deletedAt viewerCanDelete author{login avatarUrl(size:80) url} reactionGroups{content viewerHasReacted reactors{totalCount}}`
+const FIELDS = `id databaseId url body createdAt deletedAt viewerCanDelete author{login avatarUrl(size:80) url} reactionGroups{content viewerHasReacted reactors{totalCount}}`
 
 function toComment(n: any, canDelete: boolean): Comment {
   const g = (c: string) => n.reactionGroups?.find((x: any) => x.content === c)
   return {
     id: n.id,
+    dbId: n.databaseId,
     url: n.url,
     body: n.deletedAt ? "" : n.body,
     createdAt: n.createdAt,
