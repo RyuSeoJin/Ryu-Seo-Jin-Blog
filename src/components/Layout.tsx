@@ -71,6 +71,15 @@ function Account() {
     read()
     // 서버의 로그인 쿠키와 맞춥니다 (다른 기기에서 로그아웃했거나 방금 로그인하고 돌아온 경우)
     syncSession()
+    // 로그인이 실패해 돌아왔으면 이유를 알려 주고 주소에서 지웁니다
+    const url = new URL(window.location.href)
+    const why = url.searchParams.get("login_error")
+    if (why) {
+      url.searchParams.delete("login_error")
+      history.replaceState(history.state, "", url.pathname + url.search + url.hash)
+      setTimeout(() => alert(`GitHub 로그인에 실패했어요.
+${why}`), 100)
+    }
     window.addEventListener("sessionchange", read)
     window.addEventListener("storage", read)
     return () => {
