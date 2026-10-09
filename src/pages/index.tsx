@@ -7,7 +7,7 @@ import GuestStrip from "src/components/GuestStrip"
 import PostReader from "src/components/PostReader"
 import ToolView from "src/components/ToolView"
 import Seo from "src/components/Seo"
-import { ArrowUpRightIcon, CloseIcon, GithubIcon, LinkedinIcon, MailIcon, SearchIcon } from "src/components/Icons"
+import { ArrowUpRightIcon, CloseIcon, GithubIcon, SearchIcon } from "src/components/Icons"
 import { ago, useCommunity } from "src/lib/community"
 import { getListedPosts, getTopicTree, type PostMeta, type TopicGroup } from "src/lib/posts"
 import { splitCategory, tagLabel } from "src/lib/tags"
@@ -154,9 +154,7 @@ export default function Home({ posts, topics, categories }: Props) {
             </div>
             <p className="bio">{CONFIG.profile.bio}</p>
             <div className="links">
-              <a href={`mailto:${CONFIG.profile.email}`}><MailIcon /> 메일</a>
               <a href={`https://github.com/${CONFIG.profile.github}`} target="_blank" rel="noopener noreferrer"><GithubIcon /> GitHub</a>
-              <a href={`https://www.linkedin.com/in/${CONFIG.profile.linkedin}`} target="_blank" rel="noopener noreferrer"><LinkedinIcon /> LinkedIn</a>
             </div>
           </div>
 
