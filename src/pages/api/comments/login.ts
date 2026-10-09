@@ -6,7 +6,7 @@ import { cookie, fail, safeReturn, seal } from "src/lib/server/github"
 export default function handler(req: NextApiRequest, res: NextApiResponse) {
   try {
     const state = crypto.randomBytes(16).toString("hex")
-    const clientId = process.env.GITHUB_APP_CLIENT_ID
+    const clientId = process.env.GITHUB_COMMENTAPP_CLIENT_ID
     if (!clientId) return res.status(503).setHeader("Content-Type", "text/plain; charset=utf-8").send("댓글 로그인 설정이 아직 끝나지 않았어요.")
     res.setHeader("Set-Cookie", cookie("rsj_oauth", seal({ s: state, r: safeReturn(req.query.return) }), 600))
     const proto = (req.headers["x-forwarded-proto"] as string) || "http"

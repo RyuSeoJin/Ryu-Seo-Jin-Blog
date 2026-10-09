@@ -5,7 +5,7 @@
  * - 방문자 로그인은 블로그 전용 GitHub App 으로 하고, 받은 토큰은 암호화해 httpOnly 쿠키에만 둡니다.
  * - 로그인하지 않은 방문자에게 댓글을 보여주거나 새 토론을 만들 때는 App 설치 토큰을 씁니다.
  *
- * 필요한 Vercel 환경 변수: GITHUB_APP_ID, GITHUB_APP_CLIENT_ID, GITHUB_APP_CLIENT_SECRET, GITHUB_APP_PRIVATE_KEY
+ * 필요한 Vercel 환경 변수: GITHUB_COMMENTAPP_ID, GITHUB_COMMENTAPP_CLIENT_ID, GITHUB_COMMENTAPP_CLIENT_SECRET, GITHUB_COMMENTAPP_PRIVATE_KEY
  */
 import crypto from "crypto"
 import fs from "fs"
@@ -29,7 +29,7 @@ export class HttpError extends Error {
 }
 
 // ── 쿠키 암호화 (AES-256-GCM, 키는 App client secret 에서 만듭니다) ──
-const key = () => crypto.createHash("sha256").update(`comments:${env("GITHUB_APP_CLIENT_SECRET")}`).digest()
+const key = () => crypto.createHash("sha256").update(`comments:${env("GITHUB_COMMENTAPP_CLIENT_SECRET")}`).digest()
 export function seal(data: object): string {
   const iv = crypto.randomBytes(12)
   const c = crypto.createCipheriv("aes-256-gcm", key(), iv)
@@ -67,7 +67,7 @@ async function oauthToken(params: Record<string, string>) {
   const r = await fetch("https://github.com/login/oauth/access_token", {
     method: "POST",
     headers: { Accept: "application/json", "Content-Type": "application/json" },
-    body: JSON.stringify({ client_id: env("GITHUB_APP_CLIENT_ID"), client_secret: env("GITHUB_APP_CLIENT_SECRET"), ...params }),
+    body: JSON.stringify({ client_id: env("GITHUB_COMMENTAPP_CLIENT_ID"), client_secret: env("GITHUB_COMMENTAPP_CLIENT_SECRET"), ...params }),
   })
   const d = await r.json()
   if (!d.access_token) throw new HttpError(401, d.error_description || "GitHub 로그인에 실패했어요.")
@@ -116,8 +116,8 @@ const b64url = (o: object) => Buffer.from(JSON.stringify(o)).toString("base64url
 export async function appToken(): Promise<string> {
   if (appTok && Date.now() < appTok.until) return appTok.token
   const now = Math.floor(Date.now() / 1000)
-  const unsigned = `${b64url({ alg: "RS256", typ: "JWT" })}.${b64url({ iat: now - 60, exp: now + 540, iss: env("GITHUB_APP_ID") })}`
-  const pem = env("GITHUB_APP_PRIVATE_KEY").replace(/\\n/g, "\n")
+  const unsigned = `${b64url({ alg: "RS256", typ: "JWT" })}.${b64url({ iat: now - 60, exp: now + 540, iss: env("GITHUB_COMMENTAPP_ID") })}`
+  const pem = env("GITHUB_COMMENTAPP_PRIVATE_KEY").replace(/\\n/g, "\n")
   const jwt = `${unsigned}.${crypto.createSign("RSA-SHA256").update(unsigned).sign(pem, "base64url")}`
   const h = { Authorization: `Bearer ${jwt}`, Accept: "application/vnd.github+json" }
   const inst = await fetch(`https://api.github.com/repos/${OWNER}/${NAME}/installation`, { headers: h }).then((r) => r.json())
