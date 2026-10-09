@@ -92,7 +92,7 @@ function Account() {
 }
 
 export default function Layout({ children }: { children: ReactNode }) {
-  const { pathname } = useRouter()
+  const { pathname, query } = useRouter()
   return (
     <>
       <header className="site-header">
@@ -102,11 +102,11 @@ export default function Layout({ children }: { children: ReactNode }) {
             {CONFIG.blog.title}
           </Link>
           <nav className="nav" aria-label="주 메뉴">
-            <Link href="/" aria-current={pathname === "/" ? "page" : undefined}>글</Link>
+            <Link href="/" aria-current={pathname === "/" && !query.tool && !query.p ? "page" : undefined}>글</Link>
             <Link href="/guestbook" aria-current={pathname === "/guestbook" ? "page" : undefined}>방명록</Link>
             <Link href="/about" aria-current={pathname === "/about" ? "page" : undefined}>About</Link>
-            {/* /fx 는 Next 페이지가 아닌 정적 파일이라 일반 링크로 이동합니다 */}
-            <a href="/fx">FX</a>
+            {/* 메인 화면 안에서 작업대를 엽니다. 주소는 /fx (직접 열면 작업대 전체 화면) */}
+            <Link href={{ pathname: "/", query: { tool: "fx" } }} as="/fx" aria-current={query.tool === "fx" ? "page" : undefined}>FX</Link>
             <ThemeToggle />
             <Account />
           </nav>

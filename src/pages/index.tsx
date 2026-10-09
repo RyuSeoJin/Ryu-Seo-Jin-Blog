@@ -5,6 +5,7 @@ import { useCallback, useEffect, useMemo, useRef } from "react"
 import { CONFIG } from "site.config"
 import GuestbookPreview from "src/components/GuestbookPreview"
 import PostReader from "src/components/PostReader"
+import ToolView from "src/components/ToolView"
 import Seo from "src/components/Seo"
 import { ArrowUpRightIcon, CloseIcon, GithubIcon, LinkedinIcon, MailIcon, SearchIcon } from "src/components/Icons"
 import { getListedPosts, getTopicTree, type PostMeta, type TopicGroup } from "src/lib/posts"
@@ -37,6 +38,9 @@ export default function Home({ posts, topics, categories }: Props) {
 
   // ── 오른쪽 패널: 글을 누르면 주소는 /글주소 로 바꾸고, 메인 화면 위에 패널로 엽니다 ──
   const openSlug = typeof router.query.p === "string" ? router.query.p : ""
+  // 도구(도트 이펙트 작업대)도 같은 자리에서 엽니다. 주소는 /fx
+  const openTool = router.query.tool === "fx" && !openSlug
+  const reading = !!openSlug || openTool
   const filters = () => {
     const f: Record<string, string> = { q, category, tag }
     Object.keys(f).forEach((k) => !f[k] && delete f[k])
@@ -50,6 +54,13 @@ export default function Home({ posts, topics, categories }: Props) {
     openedHere.current = true
     listScroll.current = window.scrollY
     router.push({ pathname: "/", query: { ...filters(), p: slug } }, `/${slug}`, { shallow: true, scroll: false })
+  }
+  const openFx = (e: React.MouseEvent) => {
+    if (e.metaKey || e.ctrlKey || e.shiftKey || e.button !== 0) return
+    e.preventDefault()
+    openedHere.current = true
+    listScroll.current = window.scrollY
+    router.push({ pathname: "/", query: { ...filters(), tool: "fx" } }, "/fx", { shallow: true, scroll: false })
   }
   const closePost = useCallback(() => {
     if (openedHere.current) {
@@ -68,9 +79,9 @@ export default function Home({ posts, topics, categories }: Props) {
   // 글에서 목록으로 돌아오면 보던 위치로 되돌립니다
   const wasOpen = useRef(false)
   useEffect(() => {
-    if (wasOpen.current && !openSlug) requestAnimationFrame(() => window.scrollTo({ top: listScroll.current }))
-    wasOpen.current = !!openSlug
-  }, [openSlug])
+    if (wasOpen.current && !reading) requestAnimationFrame(() => window.scrollTo({ top: listScroll.current }))
+    wasOpen.current = reading
+  }, [reading])
   const tagFromPost = useCallback(
     (t: string) => {
       openedHere.current = false
@@ -101,7 +112,7 @@ export default function Home({ posts, topics, categories }: Props) {
   return (
     <>
       <Seo />
-      <div className={`container home${openSlug ? " reading" : ""}`}>
+      <div className={`container home${reading ? " reading" : ""}`}>
         {/* 왼쪽: 프로필 · 포트폴리오 · 방명록 */}
         <aside className="side side-left" aria-label="프로필">
           <div className="card">
@@ -122,7 +133,12 @@ export default function Home({ posts, topics, categories }: Props) {
             <ul className="projects">
               {CONFIG.projects.map((p: { name: string; href: string }) => (
                 <li key={p.name}>
-                  <a href={p.href} {...(p.href.startsWith("http") ? { target: "_blank", rel: "noopener noreferrer" } : {})}>
+                  <a
+                    href={p.href}
+                    aria-current={p.href === "/fx" && openTool ? "page" : undefined}
+                    onClick={p.href === "/fx" ? openFx : undefined}
+                    {...(p.href.startsWith("http") ? { target: "_blank", rel: "noopener noreferrer" } : {})}
+                  >
                     <ArrowUpRightIcon />{p.name}
                   </a>
                 </li>
@@ -137,9 +153,10 @@ export default function Home({ posts, topics, categories }: Props) {
 
         {/* 가운데 + 오른쪽: 글을 열면 이 자리에 본문을 보여줍니다 */}
         {openSlug && <PostReader slug={openSlug} onBack={closePost} onNavigate={navigatePost} onTag={tagFromPost} />}
+        {openTool && <ToolView onBack={closePost} />}
 
         {/* 가운데: 글 목록 */}
-        <div className="feed" hidden={!!openSlug}>
+        <div className="feed" hidden={reading}>
           <section className="hero">
             <span className="eyebrow">{CONFIG.profile.role} · {CONFIG.profile.name}</span>
             <h1>공부한 내용과 작업 기록</h1>
@@ -207,7 +224,7 @@ export default function Home({ posts, topics, categories }: Props) {
         </div>
 
         {/* 오른쪽: 주제 */}
-        <aside className="side side-right" aria-label="주제" hidden={!!openSlug}>
+        <aside className="side side-right" aria-label="주제" hidden={reading}>
           <p className="side-h">주제</p>
           <div className="topics">
             {topics.map((g) => (

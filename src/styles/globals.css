@@ -295,6 +295,14 @@ button, input { font: inherit; color: inherit; }
   .home.reading { grid-template-columns: 252px minmax(0, 1fr); }
   .home.reading .reader { grid-column: 2; grid-row: 1; }
 }
+/* 메인 안에서 여는 도구(도트 이펙트 작업대) */
+.reader.tool-view { display: flex; flex-direction: column; gap: 0; }
+.tool-view .reader-bar { margin-bottom: 16px; }
+.tool-title { font-size: 14px; font-weight: 600; color: var(--muted); }
+.tool-frame {
+  display: block; width: 100%; height: calc(100vh - var(--header-h) - 110px); min-height: 620px;
+  border: 1px solid var(--line); border-radius: 14px; background: var(--surface);
+}
 .skeleton { display: flex; flex-direction: column; gap: 12px; }
 .skeleton span { display: block; height: 14px; border-radius: 6px; background: var(--surface-2); animation: pulse 1.2s ease-in-out infinite; }
 @keyframes pulse { 50% { opacity: 0.5; } }
