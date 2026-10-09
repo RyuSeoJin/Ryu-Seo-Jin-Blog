@@ -147,7 +147,6 @@ export default function Layout({ children }: { children: ReactNode }) {
           <nav className="nav" aria-label="주 메뉴">
             <Link href="/" aria-current={pathname === "/" && !query.tool && !query.p ? "page" : undefined}>글</Link>
             <Link href="/guestbook" aria-current={pathname === "/guestbook" ? "page" : undefined}>방명록</Link>
-            <Link href="/about" aria-current={pathname === "/about" ? "page" : undefined}>About</Link>
             {/* 메인 화면 안에서 작업대를 엽니다. 주소는 /fx (직접 열면 작업대 전체 화면) */}
             <Link href={{ pathname: "/", query: { tool: "fx" } }} as="/fx" aria-current={query.tool === "fx" ? "page" : undefined}>FX</Link>
             <ThemeToggle />

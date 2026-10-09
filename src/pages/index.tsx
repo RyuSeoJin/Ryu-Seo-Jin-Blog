@@ -9,23 +9,23 @@ import ToolView from "src/components/ToolView"
 import Seo from "src/components/Seo"
 import { ArrowUpRightIcon, CloseIcon, GithubIcon, SearchIcon } from "src/components/Icons"
 import { ago, useCommunity } from "src/lib/community"
-import { getListedPosts, getTopicTree, type PostMeta, type TopicGroup } from "src/lib/posts"
+import { getListedPosts, type PostMeta } from "src/lib/posts"
 import { splitCategory, tagLabel } from "src/lib/tags"
 
-type Props = { posts: PostMeta[]; topics: TopicGroup[]; categories: { name: string; count: number }[] }
+type Props = { posts: PostMeta[]; categories: { name: string; count: number }[] }
 
 export const getStaticProps: GetStaticProps<Props> = async () => {
   const posts = getListedPosts()
   const counts = new Map<string, number>()
   posts.forEach((p) => p.category && counts.set(p.category, (counts.get(p.category) || 0) + 1))
   const categories = [...counts].map(([name, count]) => ({ name, count })).sort((a, b) => b.count - a.count)
-  return { props: { posts, topics: getTopicTree(posts), categories } }
+  return { props: { posts, categories } }
 }
 
 const fmtDate = (d: string) => d.replace(/-/g, ".")
 const FEATURED: { project?: string; pick?: string } = (CONFIG as any).featured || {}
 
-export default function Home({ posts, topics, categories }: Props) {
+export default function Home({ posts, categories }: Props) {
   const router = useRouter()
   const q = typeof router.query.q === "string" ? router.query.q : ""
   const category = typeof router.query.category === "string" ? router.query.category : ""
@@ -124,13 +124,6 @@ export default function Home({ posts, topics, categories }: Props) {
       return { month: month.replace("-", "."), items, series: top && top[1] >= 2 ? `${splitCategory(top[0]).text} ${top[1]}편` : "" }
     })
   }, [filtered, filtering, latest])
-
-  // 오른쪽 "이어 읽는 시리즈": 글이 많은 주제 4개
-  const series = useMemo(() => {
-    const all = topics.flatMap((g) => g.items.map((i) => ({ ...i, group: g.group })))
-    return all.sort((a, b) => b.count - a.count).slice(0, 4)
-  }, [topics])
-  const seriesMax = series[0]?.count || 1
 
   const community = useCommunity()
   const counts = community.data?.commentCounts || {}
@@ -271,17 +264,7 @@ export default function Home({ posts, topics, categories }: Props) {
         </div>
 
         {/* 오른쪽: 시리즈 · 최근 댓글 · 주제 */}
-        <aside className="side side-right" aria-label="시리즈와 주제" hidden={reading}>
-          <p className="side-h">이어 읽는 시리즈</p>
-          <div className="series">
-            {series.map((s) => (
-              <button key={s.tag} onClick={() => setQuery({ tag: tag === s.tag ? "" : s.tag })} aria-pressed={tag === s.tag}>
-                <span className="series-row"><span>{s.group} · {s.name}</span><b>{s.count}</b></span>
-                <span className="series-bar" style={{ width: `${Math.round((s.count / seriesMax) * 100)}%` }} />
-              </button>
-            ))}
-          </div>
-
+        <aside className="side side-right" aria-label="최근 댓글" hidden={reading}>
           <p className="side-h">최근 댓글</p>
           <div className="recent">
             {community.status === "loading" && <p className="recent-empty">불러오는 중…</p>}
@@ -299,23 +282,6 @@ export default function Home({ posts, topics, categories }: Props) {
             })}
           </div>
 
-          <p className="side-h">주제</p>
-          <div className="topics">
-            {topics.map((g) => (
-              <div key={g.group}>
-                <div className="g">{g.group}</div>
-                <ul>
-                  {g.items.map((i) => (
-                    <li key={i.tag}>
-                      <button aria-pressed={tag === i.tag} onClick={() => setQuery({ tag: tag === i.tag ? "" : i.tag })}>
-                        {i.name} <span className="n">{i.count}</span>
-                      </button>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            ))}
-          </div>
         </aside>
       </div>
     </>

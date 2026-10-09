@@ -107,7 +107,6 @@ button, input { font: inherit; color: inherit; }
 .side { display: flex; flex-direction: column; gap: 14px; min-width: 0; }
 .card { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 16px; }
 .bio { margin: 12px 0 14px; font-size: 13.5px; color: var(--text-2); line-height: 1.6; }
-.side-right .topics { gap: 16px; }
 
 
 .eyebrow { font-size: 13px; font-weight: 600; color: var(--accent); letter-spacing: 0.02em; }
@@ -152,16 +151,6 @@ button, input { font: inherit; color: inherit; }
 .links a:hover { border-color: var(--muted); color: var(--text); }
 .links svg { width: 14px; height: 14px; }
 .side-h { margin: 0 0 10px; font-size: 12px; font-weight: 700; letter-spacing: 0.08em; color: var(--muted); text-transform: uppercase; }
-.topics { display: flex; flex-direction: column; gap: 14px; }
-.topics .g { font-size: 13px; font-weight: 600; color: var(--text-2); margin-bottom: 4px; }
-.topics ul { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 4px; }
-.topics button {
-  border: 0; background: var(--surface-2); color: var(--text-2); border-radius: 6px; height: 26px; padding: 0 8px;
-  font-size: 12.5px; cursor: pointer; display: inline-flex; gap: 5px; align-items: center;
-}
-.topics button:hover { color: var(--text); }
-.topics button[aria-pressed="true"] { background: var(--accent); color: #fff; }
-.topics button .n { opacity: 0.6; font-variant-numeric: tabular-nums; }
 .projects { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; }
 .projects a { display: flex; gap: 10px; align-items: flex-start; padding: 8px 0; font-size: 13.5px; color: var(--text-2); border-bottom: 1px dashed var(--line); }
 .projects li:last-child a { border-bottom: 0; }
@@ -335,13 +324,6 @@ button, input { font: inherit; color: inherit; }
 @media (max-width: 560px) { .log-row { grid-template-columns: minmax(0, 1fr) auto; } .log-no { grid-column: 1 / -1; } .log-side img { width: 60px; } }
 
 /* ── 메인 오른쪽: 시리즈 · 최근 댓글 ── */
-.side-right .side-h { margin-top: 8px; }
-.series { display: flex; flex-direction: column; gap: 10px; }
-.series button { display: flex; flex-direction: column; gap: 5px; background: none; border: 0; padding: 0; cursor: pointer; text-align: left; font: inherit; color: var(--text-2); }
-.series-row { display: flex; justify-content: space-between; gap: 8px; font-size: 13px; }
-.series-row b { color: var(--text); font-variant-numeric: tabular-nums; }
-.series-bar { height: 5px; border-radius: 3px; background: var(--accent); opacity: 0.85; }
-.series button[aria-pressed="true"] .series-row span { color: var(--accent); font-weight: 600; }
 .recent { display: flex; flex-direction: column; }
 .recent-empty { margin: 0; font-size: 13px; color: var(--muted); line-height: 1.6; }
 .recent-item { display: flex; flex-direction: column; gap: 3px; padding: 9px 0; border-bottom: 1px solid var(--line); font-size: 13px; }
