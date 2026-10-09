@@ -84,7 +84,7 @@ button, input { font: inherit; color: inherit; }
 .icon-btn svg { width: 18px; height: 18px; }
 
 /* ── 홈 ── */
-/* 홈 3단: 왼쪽(프로필·포트폴리오·방명록) | 가운데(글) | 오른쪽(주제). 좁아지면 2단 → 1단 */
+/* 홈 3단: 왼쪽(프로필·도구) | 가운데(글) | 오른쪽(주제). 좁아지면 2단 → 1단 */
 .container.home { max-width: 1280px; }
 .home { display: grid; grid-template-columns: minmax(0, 1fr); gap: 32px; padding-block: 40px 72px; }
 .home .feed { order: 1; min-width: 0; }

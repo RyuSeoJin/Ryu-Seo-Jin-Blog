@@ -10,11 +10,8 @@ const CONFIG = {
     linkedin: "RyuSeoJin",
     github: "RyuSeoJin",
   },
-  // 사이드바 "포트폴리오·도구" 목록
+  // 사이드바 "도구" 목록
   projects: [
-    { name: "포트폴리오 1 · Lakaya(창작 슈팅 게임) 레벨 기획서", href: "https://ryuseojin.com/" },
-    { name: "포트폴리오 2 · 로스트아크 아르모체 하드 레벨 역기획서", href: "https://ryuseojin.com/" },
-    { name: "포트폴리오 3 · 로스트아크 4막: 에키드나 레벨 역기획서", href: "https://ryuseojin.com/" },
     { name: "도트 이펙트 작업대", href: "/fx" },
   ],
   // 메인 상단 방명록 띠 맨 앞에 늘 붙어 있는 주인장 포스트잇

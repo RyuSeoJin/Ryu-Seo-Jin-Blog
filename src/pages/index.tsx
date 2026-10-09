@@ -145,7 +145,7 @@ export default function Home({ posts, topics, categories }: Props) {
       </div>
 
       <div className={`container home${reading ? " reading" : ""}`}>
-        {/* 왼쪽: 프로필 · 포트폴리오 · 도구 */}
+        {/* 왼쪽: 프로필 · 도구 */}
         <aside className="side side-left" aria-label="프로필">
           <div className="card">
             <div className="profile">
@@ -161,7 +161,7 @@ export default function Home({ posts, topics, categories }: Props) {
           </div>
 
           <div className="card">
-            <p className="side-h">포트폴리오 · 도구</p>
+            <p className="side-h">도구</p>
             <ul className="projects">
               {CONFIG.projects.map((p: { name: string; href: string }) => (
                 <li key={p.name}>

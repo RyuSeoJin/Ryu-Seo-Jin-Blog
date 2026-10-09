@@ -31,7 +31,7 @@ type Props = {
 }
 
 /**
- * 메인 화면 안에서 읽는 글. 왼쪽 칸(프로필·포트폴리오·방명록)은 그대로 두고
+ * 메인 화면 안에서 읽는 글. 왼쪽 칸(프로필·도구)은 그대로 두고
  * 가운데 글 목록과 오른쪽 주제 자리에 본문을 보여줍니다. 주소는 /글주소 로 바뀝니다.
  */
 export default function PostReader({ slug, onBack, onNavigate, onTag }: Props) {
