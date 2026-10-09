@@ -67,7 +67,7 @@ export default function GuestStrip({ status, data }: Props) {
     <section className="cork-strip" aria-label="방명록">
       <div className="cork-head">
         <b>방명록</b>
-        <span>{status === "ready" ? (data!.guestTotal ? `${data!.guestTotal}개의 한마디` : "아직 비어 있어요") : status === "loading" ? "불러오는 중…" : "지금은 불러오지 못했어요"}</span>
+        {status === "ready" ? (data!.guestTotal > 0 && <span>{data!.guestTotal}개의 한마디</span>) : <span>{status === "loading" ? "불러오는 중…" : "지금은 불러오지 못했어요"}</span>}
         <Link href="/guestbook" className="cork-all">방명록 전체보기</Link>
       </div>
       {/* 블로그 주인이 붙여 둔 고정 포스트잇 (site.config.js 의 guestbookPinned) */}

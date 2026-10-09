@@ -30,6 +30,8 @@ main { padding: 0 !important; }
 .gsc-reactions-count { display: none !important; }
 .gsc-reactions > div { margin-top: 0 !important; justify-content: flex-start !important; flex-wrap: wrap; }
 .gsc-timeline { order: 3; }
+/* 반응 줄이 없는 창(방명록)에서는 작성칸 모서리와 아래 간격을 원래대로 */
+.gsc-main:not(:has(.gsc-reactions)) .gsc-comments > .gsc-comment-box { border-radius: 6px !important; margin-bottom: 16px !important; }
 
 /* 보라 포인트: 작성칸 테두리와 탭 줄 */
 .gsc-comment-box:not(.gsc-comment-box-is-reply) { border-color: var(--site-accent-line) !important; }

@@ -47,7 +47,8 @@ export default function Comments({ term, title = "댓글" }: Props) {
       "data-mapping": term ? "specific" : "pathname",
       ...(term ? { "data-term": term } : {}),
       "data-strict": "1",
-      "data-reactions-enabled": "1",
+      // 글에는 반응(이모지)을 받고, 방명록(포스트잇)은 한마디만 남기도록 끕니다
+      "data-reactions-enabled": term ? "0" : "1",
       // 로그인한 사람 정보를 받아 헤더에 보여주기 위해 켭니다
       "data-emit-metadata": "1",
       "data-input-position": "top",
