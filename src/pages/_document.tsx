@@ -18,6 +18,9 @@ export default function Document() {
           rel="stylesheet"
           href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css"
         />
+        {/* 방명록 포스트잇 손글씨 글꼴 */}
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Gaegu:wght@400;700&display=swap" />
         <script dangerouslySetInnerHTML={{ __html: themeScript }} />
       </Head>
       <body>

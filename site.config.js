@@ -17,6 +17,13 @@ const CONFIG = {
     { name: "포트폴리오 3 · 로스트아크 4막: 에키드나 레벨 역기획서", href: "https://ryuseojin.com/" },
     { name: "도트 이펙트 작업대", href: "/fx" },
   ],
+  // 메인 상단 방명록 띠 맨 앞에 늘 붙어 있는 주인장 포스트잇
+  guestbookPinned: "들러 주셔서 고마워요! 한마디 남겨 주세요.",
+  // 메인 "기록" 위쪽 카드 두 개 (글 주소 slug)
+  featured: {
+    project: "teamproject-lakaya", // 대표 프로젝트
+    pick: "wiki-study-light-colors-and-emotions", // 추천 글
+  },
   blog: {
     title: "Ryu Seo Jin",
     description: "레벨 디자이너 류서진의 공부 기록과 포트폴리오",
