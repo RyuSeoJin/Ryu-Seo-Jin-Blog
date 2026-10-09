@@ -3,7 +3,7 @@ import { useEffect, useState } from "react"
 import type { Heading } from "src/lib/markdown"
 import type { PostMeta } from "src/lib/posts"
 import ArticleView, { type Nav } from "./ArticleView"
-import { ArrowLeftIcon, ArrowUpRightIcon } from "./Icons"
+import { ArrowLeftIcon } from "./Icons"
 import Toc from "./Toc"
 
 type Data = { post: PostMeta; html: string; headings: Heading[]; prev: Nav; next: Nav }
@@ -57,8 +57,7 @@ export default function PostReader({ slug, onBack, onNavigate, onTag }: Props) {
       )}
       <article className="article reader-article">
         <div className="reader-bar">
-          <button className="back" onClick={onBack}><ArrowLeftIcon /> 글 목록</button>
-          <a className="reader-full" href={`/${slug}`}>전체 화면으로 보기 <ArrowUpRightIcon /></a>
+          <button className="back-btn" onClick={onBack}><ArrowLeftIcon /> 글 목록으로 돌아가기</button>
         </div>
         {d ? (
           <ArticleView post={d.post} html={d.html} prev={d.prev} next={d.next} onNavigate={onNavigate} onTag={onTag} />

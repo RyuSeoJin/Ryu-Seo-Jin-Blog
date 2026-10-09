@@ -35,7 +35,7 @@ export default function PostPage({ post, html, headings, prev, next }: Props) {
       <Seo title={post.title} description={post.summary} path={`/${post.slug}`} image={post.thumbnail || undefined} type="article" date={post.date} />
       <div className="container article-wrap">
         <article className="article">
-          <Link href="/" className="back"><ArrowLeftIcon /> 글 목록</Link>
+          <Link href="/" className="back-btn"><ArrowLeftIcon /> 글 목록으로 돌아가기</Link>
           <ArticleView post={post} html={html} prev={prev} next={next} />
         </article>
         <Toc headings={headings} />
