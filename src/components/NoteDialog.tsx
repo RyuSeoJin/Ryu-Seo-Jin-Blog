@@ -4,7 +4,7 @@ import Comments from "./Comments"
 
 type Props = { onClose: () => void }
 
-/** 메인에서 바로 방명록 포스트잇을 쓰는 팝업. 작성칸은 방명록(giscus "guestbook")과 같은 곳입니다. */
+/** 메인에서 바로 방명록 포스트잇을 쓰는 팝업. 방명록("guestbook" 토론)에 그대로 저장됩니다. */
 export default function NoteDialog({ onClose }: Props) {
   const closeBtn = useRef<HTMLButtonElement>(null)
 
@@ -29,9 +29,9 @@ export default function NoteDialog({ onClose }: Props) {
           <b id="note-dialog-title">포스트잇 붙이기</b>
           <button ref={closeBtn} type="button" className="note-close" onClick={onClose} aria-label="닫기">×</button>
         </div>
-        <p className="note-dialog-hint">아래 칸에 한마디를 쓰고 <b>댓글</b> 버튼을 누르면 메인 방명록 띠에 포스트잇으로 붙어요.</p>
+        <p className="note-dialog-hint">아래 칸에 한마디를 쓰고 <b>보내기</b>를 누르면 메인 방명록 띠에 포스트잇으로 붙어요.</p>
         <div className="note-dialog-body">
-          <Comments term="guestbook" title="방명록 쓰기" reactions={false} />
+          <Comments term="guestbook" title="포스트잇 쓰기" composeOnly placeholder="포스트잇에 남길 한마디를 적어 주세요" onPosted={onClose} />
         </div>
       </div>
     </div>,

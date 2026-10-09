@@ -13,10 +13,11 @@ export default function Guestbook() {
     if (!router.isReady || router.query.write !== "1") return
     let tries = 0
     const timer = window.setInterval(() => {
-      const frame = box.current?.querySelector("iframe.giscus-frame")
-      if (frame || ++tries > 40) {
+      const input = box.current?.querySelector<HTMLTextAreaElement>(".cmt-composer textarea")
+      if (input || ++tries > 40) {
         window.clearInterval(timer)
         box.current?.scrollIntoView({ behavior: "smooth", block: "start" })
+        input?.focus({ preventScroll: true })
         router.replace("/guestbook", undefined, { shallow: true, scroll: false })
       }
     }, 150)
@@ -37,7 +38,7 @@ export default function Guestbook() {
             </p>
           </header>
           <div ref={box} style={{ scrollMarginTop: "calc(var(--header-h) + 16px)" }}>
-            <Comments term="guestbook" title="방명록" />
+            <Comments term="guestbook" title="방명록" discussionReactions placeholder="한마디를 남겨 주세요. 메인 화면 방명록 띠에 포스트잇으로 붙어요." />
           </div>
         </article>
       </div>

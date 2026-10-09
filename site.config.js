@@ -33,8 +33,8 @@ const CONFIG = {
   since: 2022,
   lang: "ko-KR",
 
-  // 댓글 (giscus: GitHub Discussions 에 저장, 방문자는 GitHub 로 로그인)
-  // 값은 https://giscus.app 설정 화면에서 확인할 수 있습니다. 비밀값이 아닙니다.
+  // 댓글 저장소: GitHub Discussions (글 하나 = 토론 하나, 방명록 = "guestbook" 토론)
+  // repoId·categoryId 는 공개값입니다. 방문자 로그인용 GitHub App 값은 Vercel 환경 변수에 둡니다.
   giscus: {
     enable: true,
     repo: "RyuSeoJin/Ryu-Seo-Jin-Blog",

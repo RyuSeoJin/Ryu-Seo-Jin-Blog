@@ -3,7 +3,7 @@ import { useRouter } from "next/router"
 import { useCallback, useEffect, useState, type MouseEvent } from "react"
 import { CONFIG } from "site.config"
 import { ago, REACTIONS, refreshCommunity, type Community } from "src/lib/community"
-import { hasSession, login } from "src/lib/session"
+import { hasSession, login, syncSession } from "src/lib/session"
 import NoteDialog from "./NoteDialog"
 
 const PINNED: string = (CONFIG as any).guestbookPinned || ""
@@ -50,7 +50,8 @@ export default function GuestStrip({ status, data }: Props) {
     if (!router.isReady || router.query.note !== "1") return
     const t = window.setTimeout(() => {
       router.replace("/", undefined, { shallow: true, scroll: false })
-      if (hasSession()) setWriting(true)
+      // 방금 로그인하고 돌아왔으므로 서버에 로그인 상태를 확인한 뒤 엽니다
+      syncSession().then((v) => v && setWriting(true))
     }, 0)
     return () => window.clearTimeout(t)
   }, [router.isReady, router.query.note]) // eslint-disable-line react-hooks/exhaustive-deps

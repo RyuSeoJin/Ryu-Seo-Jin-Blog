@@ -22,7 +22,6 @@ export default function PostSide({ headings }: { headings: Heading[] }) {
     <div className="post-side">
       {headings.length >= 2 && <Toc headings={headings} />}
       <div className="side-comments">
-        <p className="side-h">댓글</p>
         <Comments />
       </div>
     </div>

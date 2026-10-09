@@ -34,3 +34,18 @@ export const RssIcon = (p: P) => (
 export const PenIcon = (p: P) => (
   <svg {...base} {...p}><path d="M12 20h9" /><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z" /></svg>
 )
+export const ThumbUpIcon = (p: P) => (
+  <svg {...base} {...p} width="15" height="15"><path d="M7 11v9H4a1 1 0 0 1-1-1v-7a1 1 0 0 1 1-1h3zM7 11l4-7a2 2 0 0 1 2 2v4h5.5a2 2 0 0 1 2 2.3l-1.2 6.5a2 2 0 0 1-2 1.7H7" /></svg>
+)
+export const ThumbDownIcon = (p: P) => (
+  <svg {...base} {...p} width="15" height="15"><path d="M17 13V4h3a1 1 0 0 1 1 1v7a1 1 0 0 1-1 1h-3zM17 13l-4 7a2 2 0 0 1-2-2v-4H5.5a2 2 0 0 1-2-2.3l1.2-6.5a2 2 0 0 1 2-1.7H17" /></svg>
+)
+export const RefreshIcon = (p: P) => (
+  <svg {...base} {...p} width="14" height="14"><path d="M20 11a8 8 0 1 0-2.3 5.7M20 4v7h-7" /></svg>
+)
+export const SendIcon = (p: P) => (
+  <svg {...base} {...p} width="16" height="16"><path d="M5 12h13M12 5l7 7-7 7" /></svg>
+)
+export const MoreIcon = (p: P) => (
+  <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden width="16" height="16" {...p}><circle cx="12" cy="5" r="1.7" /><circle cx="12" cy="12" r="1.7" /><circle cx="12" cy="19" r="1.7" /></svg>
+)

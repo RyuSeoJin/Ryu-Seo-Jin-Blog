@@ -3,7 +3,7 @@ import { CONFIG } from "site.config"
 
 /**
  * 방명록·댓글 데이터 (GitHub Discussions 공개 API, 로그인 불필요).
- * giscus 는 글 주소(slug)를 토론 제목으로 쓰고, 방명록은 "guestbook" 토론 하나에 모읍니다.
+ * 댓글은 글 주소(slug)를 토론 제목으로 쓰고, 방명록은 "guestbook" 토론 하나에 모읍니다 (src/components/Comments.tsx).
  * 한 번 불러온 결과는 5분간 브라우저에 보관해 요청을 아낍니다.
  */
 export type Note = { id: number; login: string; avatar: string; body: string; createdAt: string; url: string }

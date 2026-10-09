@@ -2,7 +2,7 @@ import Link from "next/link"
 import { useRouter } from "next/router"
 import { ReactNode, useEffect, useRef, useState } from "react"
 import { CONFIG } from "site.config"
-import { adminNewPost, captureSessionFromUrl, getViewer, hasSession, isOwner, login, logout, type Viewer } from "src/lib/session"
+import { adminNewPost, getViewer, hasSession, isOwner, login, logout, syncSession, type Viewer } from "src/lib/session"
 import { GithubIcon, MoonIcon, PenIcon, RssIcon, SunIcon } from "./Icons"
 
 type Theme = "light" | "dark"
@@ -67,9 +67,10 @@ function Account() {
   const box = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
-    captureSessionFromUrl()
     const read = () => setS({ ready: true, session: hasSession(), viewer: getViewer() })
     read()
+    // 서버의 로그인 쿠키와 맞춥니다 (다른 기기에서 로그아웃했거나 방금 로그인하고 돌아온 경우)
+    syncSession()
     window.addEventListener("sessionchange", read)
     window.addEventListener("storage", read)
     return () => {
@@ -117,7 +118,7 @@ function Account() {
           )}
           <Link href="/guestbook" role="menuitem" onClick={() => setOpen(false)}>방명록 쓰기</Link>
           {v && <a href={v.url} target="_blank" rel="noopener noreferrer" role="menuitem">GitHub 프로필</a>}
-          <button role="menuitem" onClick={logout}>로그아웃</button>
+          <button role="menuitem" onClick={() => { setOpen(false); logout() }}>로그아웃</button>
         </div>
       )}
     </div>
