@@ -3,7 +3,7 @@
 locale: ko
 backend:
   name: github
-  repo: RyuSeoJin/morethan-log
+  repo: RyuSeoJin/Ryu-Seo-Jin-Blog
   branch: main
   base_url: https://ryuseojin.com
   auth_endpoint: api/decap/auth

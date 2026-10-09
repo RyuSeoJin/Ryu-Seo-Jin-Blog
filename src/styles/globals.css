@@ -68,7 +68,7 @@ button, input { font: inherit; color: inherit; }
   border-bottom: 1px solid var(--line);
 }
 .site-header .container { height: 100%; display: flex; align-items: center; gap: 16px; }
-.wordmark { display: flex; align-items: center; gap: 10px; font-weight: 700; letter-spacing: -0.01em; }
+.wordmark { display: flex; align-items: center; gap: 10px; font-weight: 700; letter-spacing: -0.01em; white-space: nowrap; flex: none; }
 .wordmark i { width: 10px; height: 10px; border-radius: 2px; background: var(--accent); display: block; transform: rotate(45deg); }
 .nav { margin-left: auto; display: flex; align-items: center; gap: 2px; }
 .nav a, .icon-btn {
@@ -198,6 +198,42 @@ button, input { font: inherit; color: inherit; }
 .site-footer a { display: inline-flex; align-items: center; gap: 6px; white-space: nowrap; }
 .site-footer a:hover { color: var(--text); }
 .site-footer svg { width: 14px; height: 14px; }
+
+/* ── 로그인 (헤더) ── */
+.account-ph { width: 34px; height: 34px; }
+.login-btn {
+  height: 32px; padding: 0 12px; margin-left: 4px; border-radius: 8px; border: 1px solid var(--line);
+  background: var(--surface); color: var(--text); font-size: 13.5px; font-weight: 600; cursor: pointer;
+  display: inline-flex; align-items: center; gap: 6px;
+}
+.login-btn:hover { border-color: var(--accent); color: var(--accent); }
+.login-btn svg { width: 16px; height: 16px; }
+@media (max-width: 480px) { .login-btn span { display: none; } .login-btn { padding: 0 8px; } }
+.account { position: relative; margin-left: 4px; }
+.avatar-btn { width: 34px; height: 34px; border-radius: 50%; border: 1px solid var(--line); background: var(--surface); padding: 2px; cursor: pointer; display: grid; place-items: center; color: var(--text-2); }
+.avatar-btn:hover, .avatar-btn[aria-expanded="true"] { border-color: var(--accent); }
+.avatar-btn img { width: 28px; height: 28px; border-radius: 50%; display: block; }
+.avatar-btn svg { width: 18px; height: 18px; }
+.account-menu {
+  position: absolute; right: 0; top: calc(100% + 8px); width: 230px; z-index: 30; padding: 6px;
+  background: var(--surface); border: 1px solid var(--line); border-radius: 12px; box-shadow: var(--shadow);
+  display: flex; flex-direction: column;
+}
+.account-menu .who { padding: 10px 10px 12px; border-bottom: 1px solid var(--line); margin-bottom: 4px; display: flex; flex-direction: column; gap: 2px; }
+.account-menu .who b { font-size: 14px; }
+.account-menu .who span { font-size: 12.5px; color: var(--muted); }
+.account-menu a, .account-menu button {
+  text-align: left; padding: 9px 10px; border-radius: 8px; font-size: 14px; color: var(--text-2);
+  background: none; border: 0; cursor: pointer; width: 100%;
+}
+.account-menu a:hover, .account-menu button:hover { background: var(--surface-2); color: var(--text); }
+.lead { margin: 0; color: var(--muted); font-size: 15px; line-height: 1.75; }
+.lead b { color: var(--text-2); }
+@media (max-width: 420px) {
+  .site-header .container { gap: 8px; }
+  .nav a { padding: 0 7px; font-size: 13.5px; }
+  .wordmark { font-size: 14px; gap: 8px; }
+}
 
 /* ── 본문 (마크다운) ── */
 .prose { font-size: 16.5px; line-height: 1.85; color: var(--text-2); overflow-wrap: anywhere; }

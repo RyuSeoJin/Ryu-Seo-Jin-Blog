@@ -30,14 +30,14 @@ const CONFIG = {
   // 값은 https://giscus.app 설정 화면에서 확인할 수 있습니다. 비밀값이 아닙니다.
   giscus: {
     enable: true,
-    repo: "RyuSeoJin/morethan-log",
+    repo: "RyuSeoJin/Ryu-Seo-Jin-Blog",
     repoId: "R_kgDOQ6XffA",
     category: "Announcements",
     categoryId: "DIC_kwDOQ6XffM4DHZTH",
   },
   // 웹 관리자 화면 (/admin)
   cms: {
-    repo: "RyuSeoJin/morethan-log",
+    repo: "RyuSeoJin/Ryu-Seo-Jin-Blog",
     branch: "main",
   },
 }

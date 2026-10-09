@@ -133,6 +133,7 @@ export default function Home({ posts, topics, categories }: Props) {
               <a href={`mailto:${CONFIG.profile.email}`}><MailIcon /> 메일</a>
               <a href={`https://github.com/${CONFIG.profile.github}`} target="_blank" rel="noopener noreferrer"><GithubIcon /> GitHub</a>
               <a href={`https://www.linkedin.com/in/${CONFIG.profile.linkedin}`} target="_blank" rel="noopener noreferrer"><LinkedinIcon /> LinkedIn</a>
+              <Link href="/guestbook">✍️ 방명록</Link>
             </div>
           </div>
 

@@ -12,7 +12,7 @@ type Nav = { slug: string; title: string } | null
 type Props = { post: PostMeta; html: string; headings: Heading[]; prev: Nav; next: Nav }
 
 // about 은 별도 페이지(/about)에서 보여줍니다
-const RESERVED = new Set(["about", "fx", "admin", "feed"])
+const RESERVED = new Set(["about", "fx", "admin", "feed", "guestbook"])
 
 export const getStaticPaths: GetStaticPaths = async () => ({
   paths: getReachablePosts().filter((p) => !RESERVED.has(p.slug)).map((p) => ({ params: { slug: p.slug } })),
@@ -60,7 +60,7 @@ export default function PostPage({ post, html, headings, prev, next }: Props) {
               {next && <Link href={`/${next.slug}`} className="next"><small>다음 글</small><b>{next.title}</b></Link>}
             </nav>
           )}
-          <Comments slug={post.slug} />
+          <Comments />
         </article>
         <Toc headings={headings} />
       </div>

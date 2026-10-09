@@ -1,26 +1,36 @@
+import { useRouter } from "next/router"
 import { useEffect, useRef } from "react"
 import { CONFIG } from "site.config"
+import { GISCUS_ORIGIN, setViewer } from "src/lib/session"
 import { useTheme } from "./Layout"
 
 const G = CONFIG.giscus
-const ORIGIN = "https://giscus.app"
+
+type Props = {
+  /** 글 댓글은 생략(주소별로 묶임). 방명록처럼 고정된 토론에 연결할 때 이름을 넘깁니다. */
+  term?: string
+  title?: string
+}
 
 /**
  * giscus 댓글 (GitHub Discussions 에 저장).
- * 글 주소(pathname)마다 토론 글 하나가 생기고, 화면 테마가 바뀌면 댓글 창 테마도 바뀝니다.
+ * 로그인 세션은 사이트 전체가 공유하고(src/lib/session.ts), 화면 테마가 바뀌면 댓글 창 테마도 바뀝니다.
  */
-export default function Comments({ slug }: { slug: string }) {
+export default function Comments({ term, title = "댓글" }: Props) {
   const ref = useRef<HTMLDivElement>(null)
   const [theme] = useTheme()
   const gTheme = theme === "dark" ? "dark" : "light"
   const ready = G.enable && G.repoId && G.categoryId
+  // 글 사이를 이동하면(주소가 바뀌면) 그 글의 토론으로 다시 불러옵니다
+  const { asPath } = useRouter()
+  const key = term ?? asPath.split(/[?#]/)[0]
 
   useEffect(() => {
     const el = ref.current
     if (!el || !ready) return
     el.innerHTML = ""
     const s = document.createElement("script")
-    s.src = `${ORIGIN}/client.js`
+    s.src = `${GISCUS_ORIGIN}/client.js`
     s.async = true
     s.crossOrigin = "anonymous"
     const attrs: Record<string, string> = {
@@ -28,10 +38,12 @@ export default function Comments({ slug }: { slug: string }) {
       "data-repo-id": G.repoId,
       "data-category": G.category,
       "data-category-id": G.categoryId,
-      "data-mapping": "pathname",
+      "data-mapping": term ? "specific" : "pathname",
+      ...(term ? { "data-term": term } : {}),
       "data-strict": "1",
       "data-reactions-enabled": "1",
-      "data-emit-metadata": "0",
+      // 로그인한 사람 정보를 받아 헤더에 보여주기 위해 켭니다
+      "data-emit-metadata": "1",
       "data-input-position": "top",
       "data-theme": gTheme,
       "data-lang": "ko",
@@ -39,15 +51,30 @@ export default function Comments({ slug }: { slug: string }) {
     }
     Object.entries(attrs).forEach(([k, v]) => s.setAttribute(k, v))
     el.appendChild(s)
-    // 글이 바뀔 때만 다시 불러옵니다
+    // 연결된 토론이 바뀔 때만 다시 불러옵니다
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [slug, ready])
+  }, [key, ready])
+
+  useEffect(() => {
+    const onMessage = (e: MessageEvent) => {
+      if (e.origin !== GISCUS_ORIGIN) return
+      const g = (e.data as any)?.giscus
+      const v = g?.discussion !== undefined || g?.viewer !== undefined ? g?.viewer : undefined
+      if (v && v.login) setViewer({ login: v.login, avatarUrl: v.avatarUrl, url: v.url })
+    }
+    window.addEventListener("message", onMessage)
+    return () => window.removeEventListener("message", onMessage)
+  }, [])
 
   useEffect(() => {
     const frame = ref.current?.querySelector<HTMLIFrameElement>("iframe.giscus-frame")
-    frame?.contentWindow?.postMessage({ giscus: { setConfig: { theme: gTheme } } }, ORIGIN)
+    frame?.contentWindow?.postMessage({ giscus: { setConfig: { theme: gTheme } } }, GISCUS_ORIGIN)
   }, [gTheme])
 
   if (!ready) return null
-  return <section className="comments" aria-label="댓글" ref={ref} />
+  return (
+    <section className="comments" aria-label={title}>
+      <div ref={ref} />
+    </section>
+  )
 }
