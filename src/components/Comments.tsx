@@ -19,7 +19,11 @@ type Props = {
 export default function Comments({ term, title = "댓글" }: Props) {
   const ref = useRef<HTMLDivElement>(null)
   const [theme] = useTheme()
-  const gTheme = theme === "dark" ? "dark" : "light"
+  // 글 댓글 창은 사이트와 반대 색으로 띄우고, 반응을 작성칸 바로 아래에 붙입니다 (public/giscus/*.css).
+  // 방명록(term 지정)은 사이트와 같은 색의 기본 테마를 씁니다.
+  const gTheme = term || typeof window === "undefined"
+    ? (theme === "dark" ? "dark" : "light")
+    : `${window.location.origin}/giscus/${theme === "dark" ? "on-dark" : "on-light"}.css`
   const ready = G.enable && G.repoId && G.categoryId
   // 글 사이를 이동하면(주소가 바뀌면) 그 글의 토론으로 다시 불러옵니다
   const { asPath } = useRouter()

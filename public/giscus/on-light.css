@@ -1,0 +1,20 @@
+/* 글 댓글 창(giscus) 테마: 사이트와 반대 색으로 띄워 눈에 잘 띄게 합니다. 기본 테마(dark) 위에 덮어씁니다. */
+@import url("https://giscus.app/themes/dark.css");
+
+main { padding: 0 !important; }
+
+/* "댓글 N개 – Powered by giscus" 머리줄은 숨깁니다 */
+.gsc-header { display: none !important; }
+
+/* 순서: 작성칸 → 그 바로 아래 붙은 반응 줄 → 댓글 목록 */
+.gsc-main { display: flex; flex-direction: column; gap: 0 !important; }
+.gsc-comments { display: contents; }
+.gsc-comments > .gsc-comment-box { order: 1; margin-bottom: 0 !important; border-bottom-left-radius: 0 !important; border-bottom-right-radius: 0 !important; }
+.gsc-reactions {
+  order: 2; margin: 0 0 16px !important; padding: 6px 10px !important; text-align: left;
+  border: 1px solid var(--color-border-default); border-top: 0; border-radius: 0 0 6px 6px;
+  background: var(--color-canvas-subtle);
+}
+.gsc-reactions-count { display: none !important; }
+.gsc-reactions > div { margin-top: 0 !important; justify-content: flex-start !important; flex-wrap: wrap; }
+.gsc-timeline { order: 3; }
