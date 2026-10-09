@@ -269,6 +269,29 @@ button, input { font: inherit; color: inherit; }
   .wordmark { font-size: 14px; gap: 8px; }
 }
 
+/* ── 오른쪽 글 패널 (메인 화면) ── */
+.drawer-root { position: fixed; inset: 0; z-index: 40; }
+.drawer-backdrop { position: absolute; inset: 0; background: rgba(8, 9, 14, 0.5); animation: fade-in 0.18s ease-out; }
+.drawer {
+  position: absolute; top: 0; right: 0; bottom: 0; width: min(880px, 100%);
+  background: var(--bg); border-left: 1px solid var(--line); box-shadow: -24px 0 60px rgba(0, 0, 0, 0.25);
+  overflow-y: auto; overscroll-behavior: contain; animation: slide-in 0.24s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+.drawer-bar {
+  position: sticky; top: 0; z-index: 2; height: 56px; padding-inline: 16px; display: flex; align-items: center; justify-content: space-between;
+  background: color-mix(in srgb, var(--bg) 86%, transparent); backdrop-filter: blur(10px); border-bottom: 1px solid var(--line);
+}
+.drawer-full { display: inline-flex; align-items: center; gap: 6px; font-size: 13.5px; color: var(--muted); height: 32px; padding: 0 10px; border-radius: 8px; }
+.drawer-full:hover { color: var(--text); background: var(--surface-2); }
+.drawer-full svg { width: 14px; height: 14px; }
+.drawer-body { max-width: 760px; margin: 0 auto; padding: 32px 28px 72px; }
+@media (max-width: 560px) { .drawer-body { padding: 24px 18px 64px; } }
+.drawer-skeleton { display: flex; flex-direction: column; gap: 12px; }
+.drawer-skeleton span { display: block; height: 14px; border-radius: 6px; background: var(--surface-2); animation: pulse 1.2s ease-in-out infinite; }
+@keyframes slide-in { from { transform: translateX(32px); opacity: 0.6; } to { transform: none; opacity: 1; } }
+@keyframes fade-in { from { opacity: 0; } to { opacity: 1; } }
+@keyframes pulse { 50% { opacity: 0.5; } }
+
 /* ── 본문 (마크다운) ── */
 .prose { font-size: 16.5px; line-height: 1.85; color: var(--text-2); overflow-wrap: anywhere; }
 .prose > :first-child { margin-top: 0; }
@@ -318,4 +341,4 @@ button, input { font: inherit; color: inherit; }
 .hljs-attr, .hljs-attribute, .hljs-property, .hljs-variable, .hljs-params { color: var(--hl-attr); }
 .hljs-meta { color: var(--muted); }
 
-@media (prefers-reduced-motion: reduce) { * { transition: none !important; scroll-behavior: auto !important; } }
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; scroll-behavior: auto !important; } }

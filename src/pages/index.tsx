@@ -1,9 +1,10 @@
 import type { GetStaticProps } from "next"
 import Link from "next/link"
 import { useRouter } from "next/router"
-import { useMemo } from "react"
+import { useCallback, useMemo, useRef } from "react"
 import { CONFIG } from "site.config"
 import GuestbookPreview from "src/components/GuestbookPreview"
+import PostDrawer from "src/components/PostDrawer"
 import Seo from "src/components/Seo"
 import { ArrowUpRightIcon, CloseIcon, GithubIcon, LinkedinIcon, MailIcon, SearchIcon } from "src/components/Icons"
 import { getListedPosts, getTopicTree, type PostMeta, type TopicGroup } from "src/lib/posts"
@@ -33,6 +34,42 @@ export default function Home({ posts, topics, categories }: Props) {
     Object.keys(next).forEach((k) => !next[k] && delete next[k])
     router.replace({ pathname: "/", query: next }, undefined, { shallow: true, scroll: false })
   }
+
+  // ── 오른쪽 패널: 글을 누르면 주소는 /글주소 로 바꾸고, 메인 화면 위에 패널로 엽니다 ──
+  const openSlug = typeof router.query.p === "string" ? router.query.p : ""
+  const filters = () => {
+    const f: Record<string, string> = { q, category, tag }
+    Object.keys(f).forEach((k) => !f[k] && delete f[k])
+    return f
+  }
+  const openedHere = useRef(false)
+  const openPost = (e: React.MouseEvent, slug: string) => {
+    if (e.metaKey || e.ctrlKey || e.shiftKey || e.button !== 0) return // 새 탭 열기는 그대로
+    e.preventDefault()
+    openedHere.current = true
+    router.push({ pathname: "/", query: { ...filters(), p: slug } }, `/${slug}`, { shallow: true, scroll: false })
+  }
+  const closePost = useCallback(() => {
+    if (openedHere.current) {
+      openedHere.current = false
+      router.back()
+    } else {
+      router.replace({ pathname: "/", query: filters() }, undefined, { shallow: true, scroll: false })
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [router, q, category, tag])
+  const navigatePost = useCallback(
+    (slug: string) => router.replace({ pathname: "/", query: { ...filters(), p: slug } }, `/${slug}`, { shallow: true, scroll: false }),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [router, q, category, tag]
+  )
+  const tagFromPost = useCallback(
+    (t: string) => {
+      openedHere.current = false
+      router.replace({ pathname: "/", query: { tag: t } }, undefined, { shallow: true, scroll: false })
+    },
+    [router]
+  )
 
   const filtered = useMemo(() => {
     const needle = q.trim().toLowerCase()
@@ -137,7 +174,7 @@ export default function Home({ posts, topics, categories }: Props) {
               <ul className="post-list">
                 {list.map((p) => (
                   <li key={p.slug} className="post-row">
-                    <Link href={`/${p.slug}`}>
+                    <Link href={`/${p.slug}`} onClick={(e) => openPost(e, p.slug)}>
                       <div className="info">
                         <h3>{p.title}</h3>
                         {p.summary && <p>{p.summary}</p>}
@@ -179,6 +216,7 @@ export default function Home({ posts, topics, categories }: Props) {
           </div>
         </aside>
       </div>
+      {openSlug && <PostDrawer slug={openSlug} onClose={closePost} onNavigate={navigatePost} onTag={tagFromPost} />}
     </>
   )
 }
