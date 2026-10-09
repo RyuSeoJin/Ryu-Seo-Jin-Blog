@@ -12,6 +12,12 @@ type Props = {
   title?: string
 }
 
+/** 댓글 창 테마: 사이트 색에 보라 포인트를 준 giscus 테마 (public/giscus/*.css). 글 댓글과 방명록이 함께 씁니다. */
+function themeUrl(mode: string) {
+  if (typeof window === "undefined") return ""
+  return `${window.location.origin}/giscus/${mode === "dark" ? "site-dark" : "site-light"}.css`
+}
+
 /**
  * giscus 댓글 (GitHub Discussions 에 저장).
  * 로그인 세션은 사이트 전체가 공유하고(src/lib/session.ts), 화면 테마가 바뀌면 댓글 창 테마도 바뀝니다.
@@ -19,11 +25,7 @@ type Props = {
 export default function Comments({ term, title = "댓글" }: Props) {
   const ref = useRef<HTMLDivElement>(null)
   const [theme] = useTheme()
-  // 글 댓글 창은 사이트 색에 보라 포인트를 준 테마를 쓰고, 반응을 작성칸 바로 아래에 붙입니다 (public/giscus/*.css).
-  // 방명록(term 지정)은 사이트와 같은 색의 기본 테마를 씁니다.
-  const gTheme = term || typeof window === "undefined"
-    ? (theme === "dark" ? "dark" : "light")
-    : `${window.location.origin}/giscus/${theme === "dark" ? "site-dark" : "site-light"}.css`
+  const gTheme = themeUrl(theme)
   const ready = G.enable && G.repoId && G.categoryId
   // 글 사이를 이동하면(주소가 바뀌면) 그 글의 토론으로 다시 불러옵니다
   const { asPath } = useRouter()
@@ -49,7 +51,8 @@ export default function Comments({ term, title = "댓글" }: Props) {
       // 로그인한 사람 정보를 받아 헤더에 보여주기 위해 켭니다
       "data-emit-metadata": "1",
       "data-input-position": "top",
-      "data-theme": gTheme,
+      // 처음 불러올 때는 화면에 실제로 적용된 테마를 씁니다 (useTheme 값은 첫 렌더에서 아직 기본값일 수 있음)
+      "data-theme": themeUrl((document.documentElement.dataset.theme as string) || theme),
       "data-lang": "ko",
       "data-loading": "lazy",
     }
