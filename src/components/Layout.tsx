@@ -146,7 +146,8 @@ export default function Layout({ children }: { children: ReactNode }) {
           </nav>
         </div>
       </header>
-      <main>{children}</main>
+      {/* 페이지가 바뀌면(메인 → 방명록 등) 새 화면이 살짝 떠오르며 나타납니다 */}
+      <main key={pathname} className="page-in">{children}</main>
       <footer className="site-footer">
         <div className="container">
           <span>© {CONFIG.since}–{new Date().getFullYear()} {CONFIG.profile.nameEn}</span>

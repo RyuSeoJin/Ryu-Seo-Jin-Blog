@@ -364,13 +364,31 @@ button, input { font: inherit; color: inherit; }
 .reader-article { margin: 0 auto; }
 .reader-bar { display: flex; align-items: center; gap: 12px; margin-bottom: 28px; }
 .home.reading .reader { order: 1; }
+/* 글을 열면 프로필 칸이 옆으로 밀려 사라지고 본문 칸이 넓어집니다. 돌아오면 다시 들어옵니다. */
+.home .side-left { transition: opacity 0.3s ease, transform 0.45s cubic-bezier(0.2, 0.7, 0.2, 1), visibility 0s linear 0s; }
+.home.reading .side-left {
+  opacity: 0; visibility: hidden; pointer-events: none; overflow: hidden;
+  transition: opacity 0.25s ease, transform 0.45s cubic-bezier(0.2, 0.7, 0.2, 1), visibility 0s linear 0.45s;
+}
+@media (max-width: 899px) { .home.reading .side-left { display: none; } }
 @media (min-width: 900px) {
+  .home { transition: grid-template-columns 0.45s cubic-bezier(0.2, 0.7, 0.2, 1), column-gap 0.45s cubic-bezier(0.2, 0.7, 0.2, 1); }
+  .home.reading { grid-template-columns: minmax(0, 1fr) 0px; column-gap: 0px; }
   .home.reading .reader { grid-column: 1; grid-row: 1 / span 2; }
+  .home.reading .side-left { transform: translateX(48px); }
 }
 @media (min-width: 1180px) {
-  .home.reading { grid-template-columns: 252px minmax(0, 1fr); }
+  .home.reading { grid-template-columns: 0px minmax(0, 1fr) 0px; }
   .home.reading .reader { grid-column: 2; grid-row: 1; }
+  .home.reading .side-left { grid-column: 1; transform: translateX(-64px); }
+  .home .side-left > * { min-width: 252px; }
 }
+/* 화면 전환: 글·도구는 살짝 떠오르며, 목록은 부드럽게 다시 나타납니다 */
+@keyframes rise-in { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: none; } }
+@keyframes fade-in { from { opacity: 0; } to { opacity: 1; } }
+.home .reader { animation: rise-in 0.4s cubic-bezier(0.2, 0.7, 0.2, 1) 0.1s both; }
+.home:not(.reading) .feed, .home:not(.reading) .side-right, .strip-wrap { animation: fade-in 0.35s ease both; }
+main.page-in { animation: rise-in 0.35s cubic-bezier(0.2, 0.7, 0.2, 1) both; }
 /* 메인 안에서 여는 도구(도트 이펙트 작업대) */
 .reader.tool-view { display: flex; flex-direction: column; gap: 0; }
 .tool-view .reader-bar { margin-bottom: 16px; }
@@ -460,7 +478,7 @@ button, input { font: inherit; color: inherit; }
   .article-wrap.with-side { grid-template-columns: minmax(0, 760px) 240px; gap: 36px; }
 }
 @media (min-width: 1180px) {
-  .reader.with-side { grid-template-columns: minmax(0, 1fr) 240px; gap: 28px; justify-content: stretch; }
+  .reader.with-side { grid-template-columns: minmax(0, 760px) 240px; gap: 40px; justify-content: center; }
 }
 .post-side {
   position: sticky; top: calc(var(--header-h) + 24px); align-self: start;
