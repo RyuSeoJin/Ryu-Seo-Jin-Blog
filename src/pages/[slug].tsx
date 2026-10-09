@@ -9,7 +9,7 @@ import { getListedPosts, getPostSource, getReachablePosts, type PostMeta } from 
 
 type Props = { post: PostMeta; html: string; headings: Heading[]; prev: Nav; next: Nav }
 
-// about 은 별도 페이지(/about)에서 보여줍니다
+// 사이트의 다른 주소와 겹치는 이름은 글 주소로 쓰지 않습니다
 const RESERVED = new Set(["about", "fx", "admin", "feed", "guestbook"])
 
 export const getStaticPaths: GetStaticPaths = async () => ({
