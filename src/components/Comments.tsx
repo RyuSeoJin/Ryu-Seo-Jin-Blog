@@ -2,6 +2,9 @@ import { useEffect, useRef } from "react"
 import { CONFIG } from "site.config"
 import { useTheme } from "./Layout"
 
+// NEXT_PUBLIC_ 값은 TS 파일에서 직접 읽어야 브라우저 코드에 들어갑니다 (site.config.js 에서는 비어 있음)
+const REPO = process.env.NEXT_PUBLIC_UTTERANCES_REPO || CONFIG.utterances.repo
+
 /** utterances 댓글. 화면 테마가 바뀌면 댓글 창 테마도 바꿉니다. */
 export default function Comments({ slug }: { slug: string }) {
   const ref = useRef<HTMLDivElement>(null)
@@ -10,13 +13,13 @@ export default function Comments({ slug }: { slug: string }) {
 
   useEffect(() => {
     const el = ref.current
-    if (!el || !CONFIG.utterances.enable || !CONFIG.utterances.repo) return
+    if (!el || !CONFIG.utterances.enable || !REPO) return
     el.innerHTML = ""
     const s = document.createElement("script")
     s.src = "https://utteranc.es/client.js"
     s.async = true
     s.crossOrigin = "anonymous"
-    s.setAttribute("repo", CONFIG.utterances.repo)
+    s.setAttribute("repo", REPO)
     s.setAttribute("issue-term", CONFIG.utterances.issueTerm)
     s.setAttribute("label", CONFIG.utterances.label)
     s.setAttribute("theme", ghTheme)
@@ -30,6 +33,6 @@ export default function Comments({ slug }: { slug: string }) {
     frame?.contentWindow?.postMessage({ type: "set-theme", theme: ghTheme }, "https://utteranc.es")
   }, [ghTheme])
 
-  if (!CONFIG.utterances.enable || !CONFIG.utterances.repo) return null
+  if (!CONFIG.utterances.enable || !REPO) return null
   return <section className="comments" aria-label="댓글" ref={ref} />
 }
