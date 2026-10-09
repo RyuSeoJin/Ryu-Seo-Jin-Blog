@@ -36,5 +36,6 @@ main { padding: 0 !important; }
 /* 보라 포인트: 작성칸 테두리와 탭 줄 */
 .gsc-comment-box:not(.gsc-comment-box-is-reply) { border-color: var(--site-accent-line) !important; }
 .gsc-comment-box-tabs { background: var(--site-accent-soft) !important; border-color: var(--site-accent-line) !important; }
-.gsc-comment-box-tabs .tabnav-tab[aria-selected="true"], .gsc-comment-box-tabs .tabnav-tab.selected { color: var(--color-accent-fg) !important; }
+/* 선택된 탭(작성하기/미리보기)도 보라 테두리로 감싸 아래 작성칸과 이어 보이게 */
+.gsc-comment-box-tabs button.color-bg-canvas { border-color: var(--site-accent-line) !important; color: var(--color-accent-fg) !important; }
 

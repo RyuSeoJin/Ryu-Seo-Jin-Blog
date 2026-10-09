@@ -68,7 +68,7 @@ export default function GuestStrip({ status, data }: Props) {
       <div className="cork-row">
         <div className="cork-head">
           <b>방명록</b>
-          {status === "ready" ? (data!.guestTotal > 0 && <span>{data!.guestTotal}개의 한마디</span>) : <span>{status === "loading" ? "불러오는 중…" : "지금은 불러오지 못했어요"}</span>}
+          {status !== "ready" && <span>{status === "loading" ? "불러오는 중…" : "지금은 불러오지 못했어요"}</span>}
           <Link href="/guestbook" className="cork-all">방명록 전체보기</Link>
         </div>
         {/* 블로그 주인이 붙여 둔 고정 포스트잇 (site.config.js 의 guestbookPinned) */}
@@ -92,6 +92,7 @@ export default function GuestStrip({ status, data }: Props) {
       {/* 방명록에 남겨진 반응을 한 줄로 모아 보여줍니다. 누르면 방명록에서 반응을 남길 수 있어요. */}
       {status === "ready" && (
         <Link href="/guestbook" className="cork-reactions" aria-label="방명록 반응 보기·남기기">
+          <span className="cork-count">포스트잇 <b>{data!.guestTotal}</b>장</span>
           <span className="cork-reactions-label">방명록 반응</span>
           {REACTIONS.map(([k, emoji, label]) => (
             <span key={k} className={data!.guestReactions[k] ? "rx on" : "rx"} title={label}>
