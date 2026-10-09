@@ -615,3 +615,16 @@ main.page-in { animation: rise-in 0.35s cubic-bezier(0.2, 0.7, 0.2, 1) both; }
 .side-comments .cmt-tabs button { font-size: 13px; }
 .side-comments .cmt-chip { height: 26px; padding: 0 7px; }
 .side-comments .cmt-replies { padding: 2px 10px 10px; }
+
+/* ── 방명록 색: 살구 주황 (메인 방명록 띠 + 포스트잇 작성 팝업) ──
+   사이트 강조색 변수를 이 영역 안에서만 주황으로 바꿔, 안쪽 버튼·테두리·작성칸이 모두 따라오게 합니다. */
+.cork-strip, .note-dialog {
+  --accent: #ea8a3e; --accent-ink: #b45309; --accent-soft: rgba(234, 138, 62, 0.14);
+  --accent-btn: #e8742a; --accent-btn-hover: #d4621c; --muted: #8a6f58;
+}
+.cork-strip { background: #fff4ea; }
+:root[data-theme="dark"] .cork-strip, :root[data-theme="dark"] .note-dialog {
+  --accent: #f0a35e; --accent-ink: #ffc08a; --accent-soft: rgba(240, 163, 94, 0.16);
+  --accent-btn: #e8742a; --accent-btn-hover: #f08a45; --muted: #a8927e;
+}
+:root[data-theme="dark"] .cork-strip { background: #241a13; }
