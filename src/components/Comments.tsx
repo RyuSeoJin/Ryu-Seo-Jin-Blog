@@ -3,7 +3,7 @@ import { useCallback, useEffect, useMemo, useRef, useState, type KeyboardEvent }
 import { createPortal } from "react-dom"
 import { CONFIG } from "site.config"
 import {
-  fetchThread, MAX_LEN, postComment, react, REACTION_KINDS, removeComment, stamp,
+  fetchThread, MAX_LEN, postComment, react, REACTION_KINDS, removeComment, stamp, voteChange,
   type Comment, type Reaction, type Thread,
 } from "src/lib/comments"
 import { refreshCommunity } from "src/lib/community"
@@ -36,7 +36,8 @@ const BEST_MIN_UP = 3
  * 인기/최신 탭, BEST, 좋아요·싫어요, 답글을 지원합니다. 서버 쪽은 src/pages/api/comments.
  */
 export default function Comments({ term, title = "댓글", composeOnly, discussionReactions, placeholder, onPosted, board }: Props) {
-  const { asPath } = useRouter()
+  const router = useRouter()
+  const { asPath } = router
   const key = term ?? asPath.split(/[?#]/)[0].replace(/^\//, "")
   const [viewer, setV] = useState<Viewer | null>(null)
   const [thread, setThread] = useState<Thread | null>(null)
@@ -45,6 +46,14 @@ export default function Comments({ term, title = "댓글", composeOnly, discussi
   const [shown, setShown] = useState(PAGE)
   // 포스트잇 게시판에서 펼쳐 본 포스트잇
   const [openId, setOpenId] = useState<string | null>(null)
+  // 메인 방명록 띠에서 포스트잇을 누르고 왔으면(?open=댓글) 그 포스트잇을 바로 엽니다
+  useEffect(() => {
+    const want = router.query.open
+    if (!board || typeof want !== "string" || !thread) return
+    if (thread.comments.some((c) => c.id === want)) setOpenId(want)
+    const { open, ...rest } = router.query
+    router.replace({ pathname: router.pathname, query: rest }, undefined, { shallow: true, scroll: false })
+  }, [board, thread, router.query.open]) // eslint-disable-line react-hooks/exhaustive-deps
   // 정렬은 불러올 때·탭을 바꿀 때만 다시 합니다 (좋아요를 누르는 동안 댓글이 자리를 옮기지 않게)
   const [loadedAt, setLoadedAt] = useState(0)
 
@@ -86,19 +95,10 @@ export default function Comments({ term, title = "댓글", composeOnly, discussi
 
   const onReact = async (c: Comment, kind: "up" | "down") => {
     if (!viewer) return login()
-    const turnOn = kind === "up" ? !c.myUp : !c.myDown
-    const other = kind === "up" ? c.myDown : c.myUp
-    // 좋아요와 싫어요는 하나만: 반대쪽이 눌려 있으면 함께 취소합니다
-    patch(c.id, (x) => ({
-      ...x,
-      up: x.up + (kind === "up" ? (turnOn ? 1 : -1) : turnOn && other ? -1 : 0),
-      down: x.down + (kind === "down" ? (turnOn ? 1 : -1) : turnOn && other ? -1 : 0),
-      myUp: kind === "up" ? turnOn : turnOn ? false : x.myUp,
-      myDown: kind === "down" ? turnOn : turnOn ? false : x.myDown,
-    }))
+    const { next, calls } = voteChange(c, kind)
+    patch(c.id, (x) => ({ ...x, up: next.up, down: next.down, myUp: next.myUp, myDown: next.myDown }))
     try {
-      await react({ id: c.id }, kind === "up" ? "THUMBS_UP" : "THUMBS_DOWN", turnOn)
-      if (turnOn && other) await react({ id: c.id }, kind === "up" ? "THUMBS_DOWN" : "THUMBS_UP", false)
+      for (const [content, on] of calls) await react({ id: c.id }, content, on)
     } catch (e: any) {
       alert(e.message)
       load()

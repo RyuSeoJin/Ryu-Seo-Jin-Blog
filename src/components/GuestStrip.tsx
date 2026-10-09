@@ -2,7 +2,8 @@ import Link from "next/link"
 import { useRouter } from "next/router"
 import { useCallback, useEffect, useRef, useState, type MouseEvent } from "react"
 import { CONFIG } from "site.config"
-import { fetchThread, react, REACTION_KINDS, type Comment, type Reaction } from "src/lib/comments"
+import { fetchThread, react, REACTION_KINDS, voteChange, type Comment, type Reaction } from "src/lib/comments"
+import { ThumbDownIcon, ThumbUpIcon } from "./Icons"
 import { ago, REACTIONS, refreshCommunity, type Community } from "src/lib/community"
 import { hasSession, login, syncSession } from "src/lib/session"
 import { postitStyle } from "src/lib/postit"
@@ -69,6 +70,21 @@ export default function GuestStrip({ status, data }: Props) {
       alert(e.message)
     }
   }
+
+  // 포스트잇 안 좋아요·싫어요: 그 자리에서 바로 누릅니다
+  const vote = async (c: Comment, kind: "up" | "down") => {
+    if (!hasSession()) return login()
+    const { next, calls } = voteChange(c, kind)
+    setStats((m) => new Map(m).set(c.dbId, next))
+    try {
+      for (const [content, on] of calls) await react({ id: c.id }, content, on)
+    } catch (e: any) {
+      setStats((m) => new Map(m).set(c.dbId, c))
+      alert(e.message)
+    }
+  }
+  // 포스트잇(또는 답글 버튼)을 누르면 방명록에서 그 포스트잇을 펼쳐 봅니다
+  const openNote = (c?: Comment) => router.push(c ? `/guestbook?open=${encodeURIComponent(c.id)}` : "/guestbook")
 
   // 포스트잇 줄: 스크롤바 대신 ‹ › 로 넘기고, 더 볼 것이 있는 쪽 끝만 흐리게 합니다
   const track = useRef<HTMLDivElement>(null)
@@ -141,21 +157,25 @@ export default function GuestStrip({ status, data }: Props) {
                 <span className="postit-who">{CONFIG.profile.name} · 주인장</span>
               </Link>
             )}
-            {notes.map((n, i) =>
-              n.pinned ? (
-                <Link key={n.id} href="/guestbook" className="postit postit-pinned" style={{ background: "#ffffff", transform: "rotate(-1deg)" }}>
+            {notes.map((n, i) => {
+              const c = stats.get(n.id)
+              return (
+                <div
+                  key={n.id}
+                  className={n.pinned ? "postit postit-pinned" : "postit"}
+                  style={postitStyle(i, n.pinned)}
+                  role="link"
+                  tabIndex={0}
+                  aria-label={`${n.login}의 포스트잇 방명록에서 보기`}
+                  onClick={() => openNote(c)}
+                  onKeyDown={(e) => { if (e.key === "Enter") openNote(c) }}
+                >
                   <span className="postit-body">{n.body || "(내용 없음)"}</span>
-                  <span className="postit-who">{CONFIG.profile.name} · 주인장 · {ago(n.createdAt)}</span>
-                  <NoteStats c={stats.get(n.id)} />
-                </Link>
-              ) : (
-                <Link key={n.id} href="/guestbook" className="postit" style={postitStyle(i)}>
-                  <span className="postit-body">{n.body || "(내용 없음)"}</span>
-                  <span className="postit-who">{n.login} · {ago(n.createdAt)}</span>
-                  <NoteStats c={stats.get(n.id)} />
-                </Link>
+                  <span className="postit-who">{n.pinned ? `${CONFIG.profile.name} · 주인장` : n.login} · {ago(n.createdAt)}</span>
+                  {c && <NoteActs c={c} onReply={() => openNote(c)} onVote={vote} />}
+                </div>
               )
-            )}
+            })}
           </div>
           <button type="button" className="cork-arrow" onClick={() => slide(1)} disabled={edge.end} aria-label="다음 포스트잇">›</button>
         </div>
@@ -180,13 +200,15 @@ export default function GuestStrip({ status, data }: Props) {
   )
 }
 
-/** 포스트잇 안 아랫줄: 답글·좋아요·싫어요 수 */
-function NoteStats({ c }: { c?: Comment }) {
+/** 포스트잇 안 버튼: 왼쪽 답글, 오른쪽 좋아요·싫어요 (방명록 페이지 포스트잇과 같은 모양) */
+function NoteActs({ c, onReply, onVote }: { c: Comment; onReply: () => void; onVote: (c: Comment, kind: "up" | "down") => void }) {
   return (
-    <span className="board-stats" aria-label={`답글 ${c?.replyCount ?? 0}개, 좋아요 ${c?.up ?? 0}, 싫어요 ${c?.down ?? 0}`}>
-      <span>💬 {c?.replyCount ?? 0}</span>
-      <span>👍 {c?.up ?? 0}</span>
-      <span>👎 {c?.down ?? 0}</span>
-    </span>
+    <div className="board-acts" onClick={(e) => e.stopPropagation()} onKeyDown={(e) => e.stopPropagation()}>
+      <button type="button" className="cmt-chip" onClick={onReply}>답글 {c.replyCount}</button>
+      <span className="cmt-votes">
+        <button type="button" className="cmt-chip" aria-pressed={c.myUp} onClick={() => onVote(c, "up")} aria-label={`좋아요 ${c.up}`}><ThumbUpIcon /> {c.up}</button>
+        <button type="button" className="cmt-chip" aria-pressed={c.myDown} onClick={() => onVote(c, "down")} aria-label={`싫어요 ${c.down}`}><ThumbDownIcon /> {c.down}</button>
+      </span>
+    </div>
   )
 }

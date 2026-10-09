@@ -42,6 +42,22 @@ export const postComment = (term: string, body: string, replyTo?: string) => cal
 export const react = (target: { id: string } | { term: string }, content: string, on: boolean) => call<{ ok: true }>("/api/comments/react", { ...target, content, on })
 export const removeComment = (id: string) => call<{ ok: true }>("/api/comments/delete", { id })
 
+/** 좋아요·싫어요 누르기: 바뀐 숫자와 보내야 할 요청. 둘은 하나만 — 반대쪽이 눌려 있으면 함께 취소합니다. */
+export function voteChange(c: Comment, kind: "up" | "down") {
+  const turnOn = kind === "up" ? !c.myUp : !c.myDown
+  const other = kind === "up" ? c.myDown : c.myUp
+  const next: Comment = {
+    ...c,
+    up: c.up + (kind === "up" ? (turnOn ? 1 : -1) : turnOn && other ? -1 : 0),
+    down: c.down + (kind === "down" ? (turnOn ? 1 : -1) : turnOn && other ? -1 : 0),
+    myUp: kind === "up" ? turnOn : turnOn ? false : c.myUp,
+    myDown: kind === "down" ? turnOn : turnOn ? false : c.myDown,
+  }
+  const calls: [content: string, on: boolean][] = [[kind === "up" ? "THUMBS_UP" : "THUMBS_DOWN", turnOn]]
+  if (turnOn && other) calls.push([kind === "up" ? "THUMBS_DOWN" : "THUMBS_UP", false])
+  return { next, calls }
+}
+
 /** 2026.08.22 22:54 */
 export function stamp(iso: string): string {
   const d = new Date(iso)
