@@ -86,29 +86,43 @@ async function load(): Promise<Community> {
 
 let inflight: Promise<Community> | null = null
 
+/** 방명록에 새 글을 붙인 뒤 부르면, 보관해 둔 데이터를 버리고 다시 불러옵니다 */
+export function refreshCommunity() {
+  try { sessionStorage.removeItem(CACHE_KEY) } catch {}
+  inflight = null
+  window.dispatchEvent(new Event("communitychange"))
+}
+
 /** 방명록·댓글 데이터를 한 번만 불러와 여러 컴포넌트가 함께 씁니다 */
 export function useCommunity(): { status: "loading" | "ready" | "error"; data: Community | null } {
   const [st, setSt] = useState<{ status: "loading" | "ready" | "error"; data: Community | null }>({ status: "loading", data: null })
   useEffect(() => {
     let alive = true
-    try {
-      const cached = JSON.parse(sessionStorage.getItem(CACHE_KEY) || "null")
-      if (cached && Date.now() - cached.at < CACHE_MS) {
-        setSt({ status: "ready", data: cached.data })
-        return
-      }
-    } catch {}
-    inflight ||= load()
-    inflight
-      .then((data) => {
-        try { sessionStorage.setItem(CACHE_KEY, JSON.stringify({ at: Date.now(), data })) } catch {}
-        if (alive) setSt({ status: "ready", data })
-      })
-      .catch(() => {
-        inflight = null
-        if (alive) setSt({ status: "error", data: null })
-      })
-    return () => { alive = false }
+    const run = () => {
+      try {
+        const cached = JSON.parse(sessionStorage.getItem(CACHE_KEY) || "null")
+        if (cached && Date.now() - cached.at < CACHE_MS) {
+          setSt({ status: "ready", data: cached.data })
+          return
+        }
+      } catch {}
+      inflight ||= load()
+      inflight
+        .then((data) => {
+          try { sessionStorage.setItem(CACHE_KEY, JSON.stringify({ at: Date.now(), data })) } catch {}
+          if (alive) setSt({ status: "ready", data })
+        })
+        .catch(() => {
+          inflight = null
+          if (alive) setSt((prev) => (prev.data ? prev : { status: "error", data: null }))
+        })
+    }
+    run()
+    window.addEventListener("communitychange", run)
+    return () => {
+      alive = false
+      window.removeEventListener("communitychange", run)
+    }
   }, [])
   return st
 }
