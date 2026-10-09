@@ -1,6 +1,6 @@
 import Link from "next/link"
 import { useRouter } from "next/router"
-import { useCallback, useEffect, useState, type MouseEvent } from "react"
+import { useCallback, useEffect, useRef, useState, type MouseEvent } from "react"
 import { CONFIG } from "site.config"
 import { fetchThread, react, REACTION_KINDS, type Reaction } from "src/lib/comments"
 import { ago, REACTIONS, refreshCommunity, type Community } from "src/lib/community"
@@ -64,6 +64,27 @@ export default function GuestStrip({ status, data }: Props) {
     }
   }
 
+  // 포스트잇 줄: 스크롤바 대신 ‹ › 로 넘기고, 더 볼 것이 있는 쪽 끝만 흐리게 합니다
+  const track = useRef<HTMLDivElement>(null)
+  const [edge, setEdge] = useState({ start: true, end: true })
+  const measure = useCallback(() => {
+    const el = track.current
+    if (!el) return
+    setEdge({ start: el.scrollLeft <= 2, end: el.scrollLeft + el.clientWidth >= el.scrollWidth - 2 })
+  }, [])
+  useEffect(() => {
+    const el = track.current
+    if (!el) return
+    measure()
+    const ro = new ResizeObserver(measure)
+    ro.observe(el)
+    return () => ro.disconnect()
+  }, [measure, notes.length])
+  const slide = (dir: 1 | -1) => {
+    const el = track.current
+    if (el) el.scrollBy({ left: dir * el.clientWidth * 0.8, behavior: "smooth" })
+  }
+
   // 작성 팝업
   const [writing, setWriting] = useState(false)
   const closeDialog = useCallback(() => {
@@ -104,28 +125,34 @@ export default function GuestStrip({ status, data }: Props) {
           <span>{notes.length ? "포스트잇\n붙이기 +" : "포스트잇을\n붙여 주세요 +"}</span>
           {!loggedIn && <small>포스트잇을 붙이려면 GitHub 로그인이 필요합니다</small>}
         </a>
-        {/* 블로그 주인이 붙여 둔 고정 포스트잇 (site.config.js 의 guestbookPinned) */}
-        {PINNED && !notes.some((n) => n.pinned) && (
-          <Link href="/guestbook" className="postit postit-pinned" style={{ background: "#ffffff", transform: "rotate(-1deg)" }}>
-            <span className="postit-body">{PINNED}</span>
-            <span className="postit-who">{CONFIG.profile.name} · 주인장</span>
-          </Link>
-        )}
-        {notes.map((n, i) =>
-          n.pinned ? (
-            <Link key={n.id} href="/guestbook" className="postit postit-pinned" style={{ background: "#ffffff", transform: "rotate(-1deg)" }}>
-              <span className="postit-body">{n.body || "(내용 없음)"}</span>
-              <span className="postit-who">{CONFIG.profile.name} · 주인장 · {ago(n.createdAt)}</span>
-            </Link>
-          ) : (
-            <Link key={n.id} href="/guestbook" className="postit" style={{ background: COLORS[i % COLORS.length], transform: `rotate(${TILTS[i % TILTS.length]}deg)` }}>
-              <span className="postit-body">{n.body || "(내용 없음)"}</span>
-              <span className="postit-who">{n.login} · {ago(n.createdAt)}</span>
-            </Link>
-          )
-        )}
+        <div className="cork-track-wrap" data-start={edge.start || undefined} data-end={edge.end || undefined}>
+          <button type="button" className="cork-arrow" onClick={() => slide(-1)} disabled={edge.start} aria-label="이전 포스트잇">‹</button>
+          <div className="cork-track" ref={track} onScroll={measure}>
+            {/* 블로그 주인이 붙여 둔 고정 포스트잇 (site.config.js 의 guestbookPinned) */}
+            {PINNED && !notes.some((n) => n.pinned) && (
+              <Link href="/guestbook" className="postit postit-pinned" style={{ background: "#ffffff", transform: "rotate(-1deg)" }}>
+                <span className="postit-body">{PINNED}</span>
+                <span className="postit-who">{CONFIG.profile.name} · 주인장</span>
+              </Link>
+            )}
+            {notes.map((n, i) =>
+              n.pinned ? (
+                <Link key={n.id} href="/guestbook" className="postit postit-pinned" style={{ background: "#ffffff", transform: "rotate(-1deg)" }}>
+                  <span className="postit-body">{n.body || "(내용 없음)"}</span>
+                  <span className="postit-who">{CONFIG.profile.name} · 주인장 · {ago(n.createdAt)}</span>
+                </Link>
+              ) : (
+                <Link key={n.id} href="/guestbook" className="postit" style={{ background: COLORS[i % COLORS.length], transform: `rotate(${TILTS[i % TILTS.length]}deg)` }}>
+                  <span className="postit-body">{n.body || "(내용 없음)"}</span>
+                  <span className="postit-who">{n.login} · {ago(n.createdAt)}</span>
+                </Link>
+              )
+            )}
+          </div>
+          <button type="button" className="cork-arrow" onClick={() => slide(1)} disabled={edge.end} aria-label="다음 포스트잇">›</button>
+        </div>
       </div>
-      {/* 방명록에 남겨진 반응을 한 줄로 모아 보여줍니다. 누르면 방명록에서 반응을 남길 수 있어요. */}
+      {/* 방명록에 남겨진 반응을 한 줄로 모아 보여줍니다. 누르면 그 자리에서 반응을 남깁니다. */}
       {status === "ready" && (
         <div className="cork-reactions" role="group" aria-label="방명록 반응">
           <span className="cork-count">포스트잇 <b>{data!.guestTotal}</b>장</span>
