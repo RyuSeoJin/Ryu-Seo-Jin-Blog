@@ -3,6 +3,7 @@ import Link from "next/link"
 import { useRouter } from "next/router"
 import { useMemo } from "react"
 import { CONFIG } from "site.config"
+import GuestbookPreview from "src/components/GuestbookPreview"
 import Seo from "src/components/Seo"
 import { ArrowUpRightIcon, CloseIcon, GithubIcon, LinkedinIcon, MailIcon, SearchIcon } from "src/components/Icons"
 import { getListedPosts, getTopicTree, type PostMeta, type TopicGroup } from "src/lib/posts"
@@ -56,11 +57,45 @@ export default function Home({ posts, topics, categories }: Props) {
     <>
       <Seo />
       <div className="container home">
-        <div>
+        {/* 왼쪽: 프로필 · 포트폴리오 · 방명록 */}
+        <aside className="side side-left" aria-label="프로필">
+          <div className="card">
+            <div className="profile">
+              <img src={CONFIG.profile.image} alt="" width={56} height={56} />
+              <div><b>{CONFIG.profile.name}</b><span>{CONFIG.profile.role}</span></div>
+            </div>
+            <p className="bio">{CONFIG.profile.bio}</p>
+            <div className="links">
+              <a href={`mailto:${CONFIG.profile.email}`}><MailIcon /> 메일</a>
+              <a href={`https://github.com/${CONFIG.profile.github}`} target="_blank" rel="noopener noreferrer"><GithubIcon /> GitHub</a>
+              <a href={`https://www.linkedin.com/in/${CONFIG.profile.linkedin}`} target="_blank" rel="noopener noreferrer"><LinkedinIcon /> LinkedIn</a>
+            </div>
+          </div>
+
+          <div className="card">
+            <p className="side-h">포트폴리오 · 도구</p>
+            <ul className="projects">
+              {CONFIG.projects.map((p: { name: string; href: string }) => (
+                <li key={p.name}>
+                  <a href={p.href} {...(p.href.startsWith("http") ? { target: "_blank", rel: "noopener noreferrer" } : {})}>
+                    <ArrowUpRightIcon />{p.name}
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          <div className="card">
+            <GuestbookPreview />
+          </div>
+        </aside>
+
+        {/* 가운데: 글 목록 */}
+        <div className="feed">
           <section className="hero">
             <span className="eyebrow">{CONFIG.profile.role} · {CONFIG.profile.name}</span>
-            <h1>{CONFIG.profile.bio}</h1>
-            <p>공부한 내용과 작업 기록을 모아 둔 블로그 겸 포트폴리오입니다. 글 {posts.length}편.</p>
+            <h1>공부한 내용과 작업 기록</h1>
+            <p>레벨 디자인을 중심으로 공부하고 만든 것들을 모아 둔 블로그 겸 포트폴리오입니다. 글 {posts.length}편.</p>
           </section>
 
           <div className="toolbar">
@@ -123,51 +158,24 @@ export default function Home({ posts, topics, categories }: Props) {
           ))}
         </div>
 
-        <aside className="aside">
-          <div>
-            <div className="profile">
-              <img src={CONFIG.profile.image} alt="" width={56} height={56} />
-              <div><b>{CONFIG.profile.name}</b><span>{CONFIG.profile.role}</span></div>
-            </div>
-            <div className="links" style={{ marginTop: 14 }}>
-              <a href={`mailto:${CONFIG.profile.email}`}><MailIcon /> 메일</a>
-              <a href={`https://github.com/${CONFIG.profile.github}`} target="_blank" rel="noopener noreferrer"><GithubIcon /> GitHub</a>
-              <a href={`https://www.linkedin.com/in/${CONFIG.profile.linkedin}`} target="_blank" rel="noopener noreferrer"><LinkedinIcon /> LinkedIn</a>
-              <Link href="/guestbook">✍️ 방명록</Link>
-            </div>
-          </div>
-
-          <div>
-            <p className="side-h">주제</p>
-            <div className="topics">
-              {topics.map((g) => (
-                <div key={g.group}>
-                  <div className="g">{g.group}</div>
-                  <ul>
-                    {g.items.map((i) => (
-                      <li key={i.tag}>
-                        <button aria-pressed={tag === i.tag} onClick={() => setQuery({ tag: tag === i.tag ? "" : i.tag })}>
-                          {i.name} <span className="n">{i.count}</span>
-                        </button>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          <div>
-            <p className="side-h">포트폴리오 · 도구</p>
-            <ul className="projects">
-              {CONFIG.projects.map((p: { name: string; href: string }) => (
-                <li key={p.name}>
-                  <a href={p.href} {...(p.href.startsWith("http") ? { target: "_blank", rel: "noopener noreferrer" } : {})}>
-                    <ArrowUpRightIcon />{p.name}
-                  </a>
-                </li>
-              ))}
-            </ul>
+        {/* 오른쪽: 주제 */}
+        <aside className="side side-right" aria-label="주제">
+          <p className="side-h">주제</p>
+          <div className="topics">
+            {topics.map((g) => (
+              <div key={g.group}>
+                <div className="g">{g.group}</div>
+                <ul>
+                  {g.items.map((i) => (
+                    <li key={i.tag}>
+                      <button aria-pressed={tag === i.tag} onClick={() => setQuery({ tag: tag === i.tag ? "" : i.tag })}>
+                        {i.name} <span className="n">{i.count}</span>
+                      </button>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            ))}
           </div>
         </aside>
       </div>

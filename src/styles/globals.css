@@ -81,10 +81,46 @@ button, input { font: inherit; color: inherit; }
 .icon-btn svg { width: 18px; height: 18px; }
 
 /* ── 홈 ── */
-.home { display: grid; grid-template-columns: minmax(0, 1fr); gap: 40px; padding-block: 44px 72px; }
-@media (min-width: 1024px) { .home { grid-template-columns: minmax(0, 1fr) 280px; gap: 56px; } }
+/* 홈 3단: 왼쪽(프로필·포트폴리오·방명록) | 가운데(글) | 오른쪽(주제). 좁아지면 2단 → 1단 */
+.container.home { max-width: 1280px; }
+.home { display: grid; grid-template-columns: minmax(0, 1fr); gap: 32px; padding-block: 40px 72px; }
+.home .feed { order: 1; min-width: 0; }
+.home .side-left { order: 2; }
+.home .side-right { order: 3; }
+@media (min-width: 900px) {
+  .home { grid-template-columns: minmax(0, 1fr) 260px; column-gap: 44px; align-items: start; }
+  .home .feed { grid-column: 1; grid-row: 1 / span 2; }
+  .home .side-left { grid-column: 2; grid-row: 1; }
+  .home .side-right { grid-column: 2; grid-row: 2; }
+}
+@media (min-width: 1180px) {
+  .home { grid-template-columns: 252px minmax(0, 1fr) 208px; column-gap: 44px; }
+  .home .side-left { grid-column: 1; grid-row: 1; }
+  .home .feed { grid-column: 2; grid-row: 1; }
+  .home .side-right { grid-column: 3; grid-row: 1; }
+  .home .side { position: sticky; top: calc(var(--header-h) + 24px); max-height: calc(100vh - var(--header-h) - 40px); overflow-y: auto; scrollbar-width: none; }
+  .home .side::-webkit-scrollbar { display: none; }
+}
+.side { display: flex; flex-direction: column; gap: 14px; min-width: 0; }
+.card { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 16px; }
+.bio { margin: 12px 0 14px; font-size: 13.5px; color: var(--text-2); line-height: 1.6; }
+.side-right .topics { gap: 16px; }
 
-.hero { display: flex; flex-direction: column; gap: 14px; padding-bottom: 32px; border-bottom: 1px solid var(--line); }
+/* 방명록 미리보기 */
+.gb-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
+.gb-count { font-size: 12px; font-weight: 700; color: var(--accent-ink); background: var(--accent-soft); border-radius: 999px; padding: 1px 8px; font-variant-numeric: tabular-nums; }
+.gb-empty { margin: 0 0 12px; font-size: 13px; color: var(--muted); }
+.gb-list { list-style: none; margin: 0 0 12px; padding: 0; display: flex; flex-direction: column; gap: 12px; }
+.gb-list li { display: grid; grid-template-columns: 24px minmax(0, 1fr); gap: 10px; }
+.gb-list img { width: 24px; height: 24px; border-radius: 50%; background: var(--surface-2); }
+.gb-meta { display: flex; gap: 6px; align-items: baseline; font-size: 12.5px; }
+.gb-meta b { font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.gb-meta time { color: var(--muted); font-size: 11.5px; flex: none; }
+.gb-list p { margin: 2px 0 0; font-size: 13px; color: var(--text-2); line-height: 1.5; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; overflow-wrap: anywhere; }
+.gb-write { display: flex; justify-content: center; align-items: center; height: 34px; border-radius: 9px; background: var(--accent-soft); color: var(--accent-ink); font-size: 13.5px; font-weight: 600; }
+.gb-write:hover { background: var(--accent); color: #fff; }
+
+.hero { display: flex; flex-direction: column; gap: 12px; padding-bottom: 28px; border-bottom: 1px solid var(--line); }
 .eyebrow { font-size: 13px; font-weight: 600; color: var(--accent); letter-spacing: 0.02em; }
 .hero h1 { margin: 0; font-size: clamp(26px, 4vw, 36px); line-height: 1.3; font-weight: 700; letter-spacing: -0.025em; text-wrap: balance; max-width: 22ch; }
 .hero p { margin: 0; color: var(--muted); font-size: 15.5px; }
@@ -134,8 +170,6 @@ button, input { font: inherit; color: inherit; }
 .empty { padding: 48px 0; text-align: center; color: var(--muted); }
 
 /* ── 사이드바 ── */
-.aside { display: flex; flex-direction: column; gap: 28px; }
-@media (min-width: 1024px) { .aside { position: sticky; top: calc(var(--header-h) + 32px); align-self: start; max-height: calc(100vh - var(--header-h) - 48px); overflow-y: auto; scrollbar-width: none; padding-bottom: 8px; } }
 .profile { display: flex; gap: 14px; align-items: center; }
 .profile img { width: 56px; height: 56px; border-radius: 14px; background: #fff; border: 1px solid var(--line); object-fit: cover; }
 .profile b { display: block; font-size: 16px; }
