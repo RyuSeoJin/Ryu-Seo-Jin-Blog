@@ -1,10 +1,10 @@
 import type { GetStaticProps } from "next"
 import Link from "next/link"
 import { useRouter } from "next/router"
-import { useCallback, useMemo, useRef } from "react"
+import { useCallback, useEffect, useMemo, useRef } from "react"
 import { CONFIG } from "site.config"
 import GuestbookPreview from "src/components/GuestbookPreview"
-import PostDrawer from "src/components/PostDrawer"
+import PostReader from "src/components/PostReader"
 import Seo from "src/components/Seo"
 import { ArrowUpRightIcon, CloseIcon, GithubIcon, LinkedinIcon, MailIcon, SearchIcon } from "src/components/Icons"
 import { getListedPosts, getTopicTree, type PostMeta, type TopicGroup } from "src/lib/posts"
@@ -43,10 +43,12 @@ export default function Home({ posts, topics, categories }: Props) {
     return f
   }
   const openedHere = useRef(false)
+  const listScroll = useRef(0)
   const openPost = (e: React.MouseEvent, slug: string) => {
     if (e.metaKey || e.ctrlKey || e.shiftKey || e.button !== 0) return // 새 탭 열기는 그대로
     e.preventDefault()
     openedHere.current = true
+    listScroll.current = window.scrollY
     router.push({ pathname: "/", query: { ...filters(), p: slug } }, `/${slug}`, { shallow: true, scroll: false })
   }
   const closePost = useCallback(() => {
@@ -63,6 +65,12 @@ export default function Home({ posts, topics, categories }: Props) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [router, q, category, tag]
   )
+  // 글에서 목록으로 돌아오면 보던 위치로 되돌립니다
+  const wasOpen = useRef(false)
+  useEffect(() => {
+    if (wasOpen.current && !openSlug) requestAnimationFrame(() => window.scrollTo({ top: listScroll.current }))
+    wasOpen.current = !!openSlug
+  }, [openSlug])
   const tagFromPost = useCallback(
     (t: string) => {
       openedHere.current = false
@@ -93,7 +101,7 @@ export default function Home({ posts, topics, categories }: Props) {
   return (
     <>
       <Seo />
-      <div className="container home">
+      <div className={`container home${openSlug ? " reading" : ""}`}>
         {/* 왼쪽: 프로필 · 포트폴리오 · 방명록 */}
         <aside className="side side-left" aria-label="프로필">
           <div className="card">
@@ -127,8 +135,11 @@ export default function Home({ posts, topics, categories }: Props) {
           </div>
         </aside>
 
+        {/* 가운데 + 오른쪽: 글을 열면 이 자리에 본문을 보여줍니다 */}
+        {openSlug && <PostReader slug={openSlug} onBack={closePost} onNavigate={navigatePost} onTag={tagFromPost} />}
+
         {/* 가운데: 글 목록 */}
-        <div className="feed">
+        <div className="feed" hidden={!!openSlug}>
           <section className="hero">
             <span className="eyebrow">{CONFIG.profile.role} · {CONFIG.profile.name}</span>
             <h1>공부한 내용과 작업 기록</h1>
@@ -196,7 +207,7 @@ export default function Home({ posts, topics, categories }: Props) {
         </div>
 
         {/* 오른쪽: 주제 */}
-        <aside className="side side-right" aria-label="주제">
+        <aside className="side side-right" aria-label="주제" hidden={!!openSlug}>
           <p className="side-h">주제</p>
           <div className="topics">
             {topics.map((g) => (
@@ -216,7 +227,6 @@ export default function Home({ posts, topics, categories }: Props) {
           </div>
         </aside>
       </div>
-      {openSlug && <PostDrawer slug={openSlug} onClose={closePost} onNavigate={navigatePost} onTag={tagFromPost} />}
     </>
   )
 }
