@@ -1,4 +1,5 @@
 import { useEffect, useRef } from "react"
+import { createPortal } from "react-dom"
 import Comments from "./Comments"
 
 type Props = { onClose: () => void }
@@ -20,7 +21,8 @@ export default function NoteDialog({ onClose }: Props) {
     }
   }, [onClose])
 
-  return (
+  // 화면 전환 애니메이션이 걸린 부모 안에 갇히지 않도록 body 바로 아래에 그립니다
+  return createPortal(
     <div className="note-backdrop" onClick={(e) => { if (e.target === e.currentTarget) onClose() }}>
       <div className="note-dialog" role="dialog" aria-modal="true" aria-labelledby="note-dialog-title">
         <div className="note-dialog-head">
@@ -32,6 +34,7 @@ export default function NoteDialog({ onClose }: Props) {
           <Comments term="guestbook" title="방명록 쓰기" />
         </div>
       </div>
-    </div>
+    </div>,
+    document.body
   )
 }

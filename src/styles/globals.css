@@ -10,6 +10,7 @@
   --accent: #4f46e5;
   --accent-ink: #3730a3;
   --accent-soft: #ecebff;
+  --accent-btn: #4f46e5; --accent-btn-hover: #4338ca;
   --mark: #e4e2ff;
   --code-bg: #f3f3f7;
   --shadow: 0 1px 2px rgba(22, 23, 29, 0.05), 0 8px 24px rgba(22, 23, 29, 0.05);
@@ -33,6 +34,7 @@
   --accent: #8b8cf8;
   --accent-ink: #b9bafc;
   --accent-soft: rgba(139, 140, 248, 0.13);
+  --accent-btn: #6366f1; --accent-btn-hover: #7577f5;
   --mark: rgba(139, 140, 248, 0.26);
   --code-bg: #1a1c23;
   --shadow: 0 1px 2px rgba(0, 0, 0, 0.3), 0 10px 30px rgba(0, 0, 0, 0.25);
@@ -215,37 +217,35 @@ button, input { font: inherit; color: inherit; }
 /* ── 메인 상단: 방명록 포스트잇 띠 ── */
 .strip-wrap { max-width: 1280px; padding-top: 22px; }
 .cork-strip {
-  display: flex; align-items: center; gap: 18px; overflow-x: auto; padding: 14px 18px;
-  border: 8px solid #7a5028; border-radius: 14px; scrollbar-width: thin;
-  background-color: #b98a57;
-  background-image: radial-gradient(rgba(80, 48, 18, 0.25) 1px, transparent 1.5px), radial-gradient(rgba(255, 240, 210, 0.16) 1px, transparent 1.5px);
-  background-size: 9px 9px, 13px 13px; background-position: 0 0, 4px 6px;
+  display: flex; align-items: center; gap: 18px; overflow-x: auto; padding: 16px 20px;
+  border: 1px solid var(--accent); border-radius: 14px; scrollbar-width: thin;
+  background: color-mix(in srgb, var(--accent) 8%, var(--surface));
 }
-.cork-head { flex: none; display: flex; flex-direction: column; gap: 4px; color: #fff8ec; padding-right: 6px; }
-.cork-head b { font-family: Gaegu, var(--f-sans); font-size: 28px; line-height: 1; }
-.cork-head span { font-size: 11.5px; opacity: 0.9; white-space: nowrap; }
+.cork-head { flex: none; display: flex; flex-direction: column; gap: 4px; color: var(--text); padding-right: 6px; }
+.cork-head b { font-family: Gaegu, var(--f-sans); font-size: 28px; line-height: 1; color: var(--accent-ink); }
+.cork-head span { font-size: 11.5px; color: var(--muted); white-space: nowrap; }
 .cork-all {
   margin-top: 6px; align-self: flex-start; white-space: nowrap; font-size: 12px; font-weight: 700;
-  padding: 5px 10px; border-radius: 999px; background: #fff8ec; color: #5a3a1c;
+  padding: 5px 11px; border-radius: 999px; background: var(--accent-btn); color: #ffffff;
 }
-.cork-all:hover { background: #ffffff; color: #2a2118; }
+.cork-all:hover { background: var(--accent-btn-hover); }
 .postit {
   flex: none; width: 176px; min-height: 100px; padding: 12px 13px; box-sizing: border-box;
   display: flex; flex-direction: column; justify-content: space-between; gap: 8px;
-  color: #2a2118; box-shadow: 0 6px 10px rgba(0, 0, 0, 0.3); transition: transform 0.15s;
+  color: #16171d; border: 1px solid rgba(22, 23, 29, 0.06); box-shadow: 0 4px 12px rgba(22, 23, 29, 0.14); transition: transform 0.15s;
 }
-.postit-pinned { outline: 2px solid rgba(42, 33, 24, 0.85); outline-offset: -2px; }
+.postit-pinned { outline: 2px solid var(--accent); outline-offset: -2px; }
 .postit:hover { transform: rotate(0deg) translateY(-3px) !important; }
 .postit-body { font-family: Gaegu, var(--f-sans); font-size: 18px; line-height: 1.3; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; overflow-wrap: anywhere; }
-.postit-who { font-size: 11.5px; color: rgba(42, 33, 24, 0.7); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.postit-who { font-size: 11.5px; color: #4b4f63; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .postit-add {
   flex: none; width: 160px; min-height: 100px; box-sizing: border-box; padding: 10px 12px;
-  border: 3px dashed rgba(255, 248, 236, 0.85); border-radius: 6px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; text-align: center;
-  color: #fff8ec;
+  border: 2px dashed var(--accent); border-radius: 8px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; text-align: center;
+  color: var(--accent-ink);
 }
 .postit-add span { font-family: Gaegu, var(--f-sans); font-size: 20px; line-height: 1.2; white-space: pre-line; }
-.postit-add small { font-size: 10.5px; line-height: 1.4; opacity: 0.92; word-break: keep-all; }
-.postit-add:hover { background: rgba(255, 248, 236, 0.12); }
+.postit-add small { font-size: 10.5px; line-height: 1.4; color: var(--muted); word-break: keep-all; }
+.postit-add:hover { background: var(--accent-soft); }
 
 /* ── 메인 가운데: 기록 ── */
 .feed-head { display: flex; flex-wrap: wrap; align-items: baseline; gap: 12px; margin-bottom: 18px; }
@@ -459,18 +459,19 @@ main.page-in { animation: rise-in 0.35s cubic-bezier(0.2, 0.7, 0.2, 1) both; }
 }
 .note-dialog {
   width: min(640px, 100%); max-height: min(86vh, 900px); overflow-y: auto; box-sizing: border-box;
-  padding: 18px 20px 20px; border-radius: 6px; background: #fff3a6; color: #2a2118;
-  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.45); transform: rotate(-0.4deg);
+  padding: 18px 20px 20px; border-radius: 14px; background: var(--surface); color: var(--text);
+  border: 1px solid var(--accent); box-shadow: 0 18px 40px rgba(0, 0, 0, 0.35);
 }
 .note-dialog-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
-.note-dialog-head b { font-family: Gaegu, var(--f-sans); font-size: 28px; line-height: 1; }
+.note-dialog-head b { font-family: Gaegu, var(--f-sans); font-size: 28px; line-height: 1; color: var(--accent-ink); }
 .note-close {
   width: 34px; height: 34px; border-radius: 50%; border: 0; cursor: pointer; flex: none;
-  background: rgba(42, 33, 24, 0.1); color: #2a2118; font-size: 22px; line-height: 1;
+  background: var(--surface-2); color: var(--text); font-size: 22px; line-height: 1;
 }
-.note-close:hover { background: rgba(42, 33, 24, 0.2); }
-.note-dialog-hint { margin: 8px 0 12px; font-size: 13.5px; line-height: 1.55; color: rgba(42, 33, 24, 0.8); }
-.note-dialog-body { border-radius: 10px; background: var(--bg); padding: 12px; }
+.note-close:hover { background: var(--accent-soft); }
+.note-dialog-hint { margin: 8px 0 14px; font-size: 13.5px; line-height: 1.55; color: var(--muted); }
+.note-dialog-hint b { color: var(--accent-ink); }
+.note-dialog-body { padding: 0; }
 .note-dialog-body .comments { margin: 0; padding: 0; border: 0; }
 
 /* ── 넓은 화면의 글 오른쪽 칸: 목차 + 댓글 ── */
