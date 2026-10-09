@@ -679,13 +679,20 @@ main.page-in { animation: rise-in 0.35s cubic-bezier(0.2, 0.7, 0.2, 1) both; }
 }
 .board-note .postit-body { -webkit-line-clamp: 5; }
 .board-note .cmt-best { font-family: var(--f-sans); }
-.board > li { display: flex; flex-direction: column; gap: 10px; min-width: 0; }
+.board > li { min-width: 0; }
 .board-foot { display: flex; flex-direction: column; gap: 4px; }
-.board-foot .postit-who { min-width: 0; }
 .board-stats { display: flex; gap: 10px; font-size: 11.5px; color: #4b4f63; font-variant-numeric: tabular-nums; }
-.board-acts { display: flex; align-items: center; gap: 6px; }
-.board-acts .cmt-chip { height: 26px; padding: 0 8px; font-size: 12px; }
+.board-note:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+/* 포스트잇 안 버튼 (네이버웹툰 댓글처럼: 왼쪽 답글, 오른쪽 좋아요·싫어요) */
+.board-acts { display: flex; align-items: center; gap: 4px; margin-top: 2px; cursor: default; }
 .board-acts .cmt-votes { gap: 4px; }
+.board-note .cmt-chip {
+  height: 24px; padding: 0 7px; gap: 4px; font-size: 11.5px; border-radius: 5px;
+  background: rgba(255, 255, 255, 0.65); border-color: rgba(22, 23, 29, 0.14); color: #3d404b;
+}
+.board-note .cmt-chip:hover { border-color: #e8742a; background: #fff; }
+.board-note .cmt-chip[aria-pressed="true"] { background: #fff; border-color: #e8742a; color: #b45309; font-weight: 700; }
+.board-note .cmt-chip svg { width: 13px; height: 13px; }
 .board-detail { width: min(560px, 100%); }
 .board-detail .cmt-item { border-bottom: 0; padding-top: 4px; }
 @media (max-width: 480px) { .board { grid-template-columns: repeat(2, minmax(0, 1fr)); padding: 16px 12px; gap: 16px 12px; } }

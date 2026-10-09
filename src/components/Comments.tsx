@@ -202,27 +202,28 @@ export default function Comments({ term, title = "댓글", composeOnly, discussi
             const owner = c.author?.login.toLowerCase() === OWNER
             return (
               <li key={c.id}>
-                <button type="button" className={owner ? "postit board-note postit-pinned" : "postit board-note"} style={postitStyle(i, owner)} onClick={() => setOpenId(c.id)}>
+                <div
+                  className={owner ? "postit board-note postit-pinned" : "postit board-note"}
+                  style={postitStyle(i, owner)}
+                  role="button"
+                  tabIndex={0}
+                  aria-label={`${c.author?.login ?? "알 수 없음"}의 포스트잇 열기`}
+                  onClick={() => setOpenId(c.id)}
+                  onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); setOpenId(c.id) } }}
+                >
                   <span className="postit-body">
                     {isBest(c, i) && <em className="cmt-best">BEST</em>}
                     {c.body || "삭제된 포스트잇이에요."}
                   </span>
-                  <span className="board-foot">
-                    <span className="postit-who">{c.author?.login ?? "알 수 없음"}{owner && " · 주인장"} · {stamp(c.createdAt).slice(2, 10)}</span>
-                    <span className="board-stats" aria-label={`답글 ${c.replyCount}개, 좋아요 ${c.up}, 싫어요 ${c.down}`}>
-                      <span>💬 {c.replyCount}</span>
-                      <span>👍 {c.up}</span>
-                      <span>👎 {c.down}</span>
+                  <span className="postit-who">{c.author?.login ?? "알 수 없음"}{owner && " · 주인장"} · {stamp(c.createdAt).slice(2, 10)}</span>
+                  {/* 포스트잇 안 버튼: 답글은 포스트잇을 열고, 좋아요·싫어요는 그 자리에서 */}
+                  <div className="board-acts" onClick={(e) => e.stopPropagation()} onKeyDown={(e) => e.stopPropagation()}>
+                    <button type="button" className="cmt-chip" onClick={() => setOpenId(c.id)}>답글 {c.replyCount}</button>
+                    <span className="cmt-votes">
+                      <button type="button" className="cmt-chip" aria-pressed={c.myUp} onClick={() => onReact(c, "up")} aria-label={`좋아요 ${c.up}`}><ThumbUpIcon /> {c.up}</button>
+                      <button type="button" className="cmt-chip" aria-pressed={c.myDown} onClick={() => onReact(c, "down")} aria-label={`싫어요 ${c.down}`}><ThumbDownIcon /> {c.down}</button>
                     </span>
-                  </span>
-                </button>
-                {/* 좋아요·싫어요는 포스트잇 밖에서 바로 누릅니다. 답글은 포스트잇을 열어서 */}
-                <div className="board-acts">
-                  <button type="button" className="cmt-chip" onClick={() => setOpenId(c.id)}>답글 달기</button>
-                  <span className="cmt-votes">
-                    <button type="button" className="cmt-chip" aria-pressed={c.myUp} onClick={() => onReact(c, "up")} aria-label="좋아요"><ThumbUpIcon /> 좋아요</button>
-                    <button type="button" className="cmt-chip" aria-pressed={c.myDown} onClick={() => onReact(c, "down")} aria-label="싫어요"><ThumbDownIcon /> 싫어요</button>
-                  </span>
+                  </div>
                 </div>
               </li>
             )
