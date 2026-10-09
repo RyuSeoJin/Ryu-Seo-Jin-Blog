@@ -454,3 +454,29 @@ button, input { font: inherit; color: inherit; }
 .note-dialog-hint { margin: 8px 0 12px; font-size: 13.5px; line-height: 1.55; color: rgba(42, 33, 24, 0.8); }
 .note-dialog-body { border-radius: 10px; background: var(--bg); padding: 12px; }
 .note-dialog-body .comments { margin: 0; padding: 0; border: 0; }
+
+/* ── 넓은 화면의 글 오른쪽 칸: 목차 + 댓글 ── */
+@media (min-width: 1200px) {
+  .article-wrap.with-side { grid-template-columns: minmax(0, 740px) 300px; gap: 40px; }
+}
+@media (min-width: 1180px) {
+  .reader.with-side { grid-template-columns: minmax(0, 1fr) 300px; gap: 36px; justify-content: stretch; }
+}
+.post-side {
+  position: sticky; top: calc(var(--header-h) + 24px); align-self: start;
+  height: calc(100vh - var(--header-h) - 48px); display: flex; flex-direction: column; gap: 18px; min-width: 0;
+}
+.post-side .toc, .reader .post-side .toc {
+  display: block; position: static; flex: 0 1 auto; max-height: 38%; overflow-y: auto; font-size: 13px;
+}
+.side-comments {
+  flex: 1 1 0; min-height: 0; overflow-y: auto; overscroll-behavior: contain;
+  border-top: 1px solid var(--line); padding-top: 16px; scrollbar-width: thin;
+}
+.post-side .toc:only-child { max-height: none; }
+.side-comments .comments { margin-top: 0; }
+.post-side .toc ol { list-style: none; margin: 0; padding: 0; border-left: 1px solid var(--line); }
+.post-side .toc a { display: block; padding: 4px 0 4px 14px; margin-left: -1px; border-left: 2px solid transparent; color: var(--muted); line-height: 1.45; }
+.post-side .toc a:hover { color: var(--text); }
+.post-side .toc a.on { color: var(--accent); border-left-color: var(--accent); }
+.post-side .toc .d3 a { padding-left: 26px; font-size: 12.5px; }

@@ -3,7 +3,7 @@ import Link from "next/link"
 import ArticleView, { type Nav } from "src/components/ArticleView"
 import { ArrowLeftIcon } from "src/components/Icons"
 import Seo from "src/components/Seo"
-import Toc from "src/components/Toc"
+import PostSide, { useMedia } from "src/components/PostSide"
 import { renderMarkdown, type Heading } from "src/lib/markdown"
 import { getListedPosts, getPostSource, getReachablePosts, type PostMeta } from "src/lib/posts"
 
@@ -30,15 +30,17 @@ export const getStaticProps: GetStaticProps<Props> = async ({ params }) => {
 }
 
 export default function PostPage({ post, html, headings, prev, next }: Props) {
+  // 넓은 화면이면 목차와 댓글을 오른쪽 칸에, 아니면 댓글을 본문 아래에 둡니다
+  const wide = useMedia("(min-width: 1200px)")
   return (
     <>
       <Seo title={post.title} description={post.summary} path={`/${post.slug}`} image={post.thumbnail || undefined} type="article" date={post.date} />
-      <div className="container article-wrap">
+      <div className={wide ? "container article-wrap with-side" : "container article-wrap"}>
         <article className="article">
           <Link href="/" className="back-btn"><ArrowLeftIcon /> 글 목록으로 돌아가기</Link>
-          <ArticleView post={post} html={html} prev={prev} next={next} />
+          <ArticleView post={post} html={html} prev={prev} next={next} showComments={wide === false} />
         </article>
-        <Toc headings={headings} />
+        {wide && <PostSide headings={headings} />}
       </div>
     </>
   )

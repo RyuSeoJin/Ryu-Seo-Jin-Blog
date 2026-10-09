@@ -4,7 +4,7 @@ import type { Heading } from "src/lib/markdown"
 import type { PostMeta } from "src/lib/posts"
 import ArticleView, { type Nav } from "./ArticleView"
 import { ArrowLeftIcon } from "./Icons"
-import Toc from "./Toc"
+import PostSide, { useMedia } from "./PostSide"
 
 type Data = { post: PostMeta; html: string; headings: Heading[]; prev: Nav; next: Nav }
 
@@ -48,8 +48,10 @@ export default function PostReader({ slug, onBack, onNavigate, onTag }: Props) {
   }, [slug])
 
   const d = state.data
+  // 넓은 화면이면 목차와 댓글을 오른쪽 칸에, 아니면 댓글을 본문 아래에 둡니다
+  const wide = useMedia("(min-width: 1180px)")
   return (
-    <div className="reader">
+    <div className={wide ? "reader with-side" : "reader"}>
       {d && (
         <Head>
           <title>{`${d.post.title} | Ryu Seo Jin`}</title>
@@ -60,7 +62,7 @@ export default function PostReader({ slug, onBack, onNavigate, onTag }: Props) {
           <button className="back-btn" onClick={onBack}><ArrowLeftIcon /> 글 목록으로 돌아가기</button>
         </div>
         {d ? (
-          <ArticleView post={d.post} html={d.html} prev={d.prev} next={d.next} onNavigate={onNavigate} onTag={onTag} />
+          <ArticleView post={d.post} html={d.html} prev={d.prev} next={d.next} onNavigate={onNavigate} onTag={onTag} showComments={wide === false} />
         ) : state.error ? (
           <p className="empty">
             글을 불러오지 못했어요. <a href={`/${slug}`} style={{ color: "var(--accent)" }}>전체 화면으로 열기</a>
@@ -76,7 +78,7 @@ export default function PostReader({ slug, onBack, onNavigate, onTag }: Props) {
           </div>
         )}
       </article>
-      {d && <Toc headings={d.headings} />}
+      {d && wide && <PostSide headings={d.headings} />}
     </div>
   )
 }

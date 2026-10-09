@@ -18,10 +18,12 @@ type Props = {
   onNavigate?: (slug: string) => void
   /** 태그를 눌렀을 때 (패널에서는 패널을 닫고 목록을 거릅니다) */
   onTag?: (tag: string) => void
+  /** 댓글을 본문 아래에 둘지 (넓은 화면에서는 오른쪽 목차 아래로 옮기므로 false) */
+  showComments?: boolean
 }
 
 /** 글 본문 화면. 글 페이지(/[slug])와 메인의 오른쪽 패널이 함께 씁니다. */
-export default function ArticleView({ post, html, prev, next, onNavigate, onTag }: Props) {
+export default function ArticleView({ post, html, prev, next, onNavigate, onTag, showComments = true }: Props) {
   const owner = useIsOwner()
   // 새 탭 열기(Ctrl·⌘·가운데 클릭)는 그대로 두고, 일반 클릭만 패널 안에서 처리합니다
   const inPanel = (fn?: () => void) => (e: MouseEvent) => {
@@ -68,7 +70,7 @@ export default function ArticleView({ post, html, prev, next, onNavigate, onTag 
           )}
         </nav>
       )}
-      <Comments />
+      {showComments && <Comments />}
     </>
   )
 }
