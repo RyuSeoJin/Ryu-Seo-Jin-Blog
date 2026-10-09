@@ -23,7 +23,7 @@ export type Community = {
 }
 
 const API = `https://api.github.com/repos/${CONFIG.giscus.repo}`
-const CACHE_KEY = "community-v3"
+const CACHE_KEY = "community-v4"
 const CACHE_MS = 5 * 60 * 1000
 /** 메인 방명록 띠에 보여 줄 최근 포스트잇 수 (주인장 고정 포스트잇은 따로) */
 export const GUEST_SHOWN = 6
@@ -69,14 +69,17 @@ async function load(): Promise<Community> {
     else if (d.comments > 0) commentCounts[d.title] = (commentCounts[d.title] || 0) + d.comments
   }
 
-  // 방명록: 블로그 주인이 남긴 것(최근 2개)은 맨 앞에 고정, 나머지는 최근 것부터 GUEST_SHOWN 개
+  // 방명록: 최근 것부터 GUEST_SHOWN 개. 블로그 주인이 남긴 것(가장 최근 1개)은 밀려나지 않게 늘 포함하되,
+  // 자리는 앞이 아니라 쓴 시간 순서 그대로 둡니다 (보통 가장 오래된 끝자리).
   const owner = CONFIG.profile.github.toLowerCase()
   const all: Note[] = guest ? ((await getJson(`${API}/discussions/${guest.number}/comments?per_page=100`)) as any[]).map(toNote) : []
   const isOwner = (n: Note) => n.login.toLowerCase() === owner
-  const guestbook: Note[] = [
-    ...all.filter(isOwner).slice(-2).reverse().map((n) => ({ ...n, pinned: true })),
-    ...all.filter((n) => !isOwner(n)).slice(-GUEST_SHOWN).reverse(),
-  ]
+  const mine = all.filter(isOwner).slice(-1)
+  const picked = new Set([...all.filter((n) => !isOwner(n)).slice(-GUEST_SHOWN), ...mine])
+  const guestbook: Note[] = all
+    .filter((n) => picked.has(n))
+    .reverse()
+    .map((n) => (isOwner(n) ? { ...n, pinned: true } : n))
 
   // 최근에 댓글이 달린 글 3개에서 마지막 댓글을 하나씩 가져옵니다
   const active = list
