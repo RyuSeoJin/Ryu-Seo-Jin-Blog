@@ -2,13 +2,21 @@ import styled from "@emotion/styled"
 import Link from "next/link"
 
 const NavBar: React.FC = () => {
-  const links = [{ id: 1, name: "About", to: "/about" }]
+  const links = [
+    // /fx 는 Next 페이지가 아닌 정적 파일(public/fx)이라 일반 링크로 이동합니다.
+    { id: 1, name: "FX", to: "/fx", external: true },
+    { id: 2, name: "About", to: "/about" },
+  ]
   return (
     <StyledWrapper className="">
       <ul>
         {links.map((link) => (
           <li key={link.id}>
-            <Link href={link.to}>{link.name}</Link>
+            {link.external ? (
+              <a href={link.to}>{link.name}</a>
+            ) : (
+              <Link href={link.to}>{link.name}</Link>
+            )}
           </li>
         ))}
       </ul>

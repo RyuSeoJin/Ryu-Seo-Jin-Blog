@@ -23,6 +23,10 @@ const CONFIG = {
       name: `포트폴리오 3 [로스트아크 4막: 에키드나 레벨 역기획서]`,
       href: "https://ryuseojin.com/",
     },
+    {
+      name: `도트 이펙트 작업대`,
+      href: "https://ryuseojin.com/fx",
+    },
   ],
   // blog setting (required)
   blog: {
