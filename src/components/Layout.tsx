@@ -58,8 +58,8 @@ export default function Layout({ children }: { children: ReactNode }) {
       <footer className="site-footer">
         <div className="container">
           <span>© {CONFIG.since}–{new Date().getFullYear()} {CONFIG.profile.nameEn}</span>
-          <a href="/feed" style={{ display: "inline-flex", alignItems: "center", gap: 6 }}>
-            <RssIcon className="" /> RSS
+          <a href="/feed">
+            <RssIcon /> RSS
           </a>
         </div>
       </footer>

@@ -26,12 +26,14 @@ const CONFIG = {
   since: 2022,
   lang: "ko-KR",
 
-  // 댓글 (GitHub 이슈 기반 utterances)
-  utterances: {
+  // 댓글 (giscus: GitHub Discussions 에 저장, 방문자는 GitHub 로 로그인)
+  // 값은 https://giscus.app 설정 화면에서 확인할 수 있습니다. 비밀값이 아닙니다.
+  giscus: {
     enable: true,
-    repo: process.env.NEXT_PUBLIC_UTTERANCES_REPO || "",
-    issueTerm: "og:title",
-    label: "💬 Utterances",
+    repo: "RyuSeoJin/morethan-log",
+    repoId: "R_kgDOQ6XffA",
+    category: "Announcements",
+    categoryId: "DIC_kwDOQ6XffM4DHZTH",
   },
   // 웹 관리자 화면 (/admin)
   cms: {

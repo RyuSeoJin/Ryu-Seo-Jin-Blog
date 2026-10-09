@@ -56,4 +56,9 @@ npm run dev
 | 이름 | 용도 |
 |---|---|
 | `GITHUB_CLIENT_ID`, `GITHUB_CLIENT_SECRET` | 관리자 화면 로그인용 GitHub OAuth App |
-| `NEXT_PUBLIC_UTTERANCES_REPO` | 댓글(utterances) 저장소, 예) `RyuSeoJin/morethan-log` |
+
+
+## 댓글
+
+[giscus](https://giscus.app)를 씁니다. 방문자가 GitHub로 로그인해 댓글을 달면 이 저장소의 Discussions(Announcements 분류)에 글 주소별로 저장됩니다.
+설정값은 `site.config.js` 의 `giscus` 항목에 있습니다.
