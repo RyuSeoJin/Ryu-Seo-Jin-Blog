@@ -685,7 +685,7 @@ main.page-in { animation: rise-in 0.35s cubic-bezier(0.2, 0.7, 0.2, 1) both; }
 .board-note:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
 /* 포스트잇 안 버튼 (네이버웹툰 댓글처럼: 왼쪽 답글, 오른쪽 좋아요·싫어요) */
 .board-acts { display: flex; align-items: center; gap: 4px; margin-top: 2px; cursor: default; }
-.postit[role="link"] { cursor: pointer; }
+.postit[role="button"] { cursor: pointer; }
 .cork-track .postit { min-height: 118px; }
 .cork-track .postit .cmt-chip { height: 22px; padding: 0 6px; font-size: 11px; }
 .board-acts .cmt-votes { gap: 4px; }

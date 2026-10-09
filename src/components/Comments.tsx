@@ -23,6 +23,9 @@ type Props = {
   onPosted?: () => void
   /** 목록을 포스트잇 게시판으로 보여 줍니다 (방명록 페이지). 포스트잇을 누르면 좋아요·답글 창이 열려요. */
   board?: boolean
+  /** 이 포스트잇(댓글) 하나만 자세히 보기 창으로 띄웁니다 (메인 방명록 띠에서 포스트잇을 눌렀을 때) */
+  detailId?: string
+  onClose?: () => void
 }
 
 const OWNER = CONFIG.profile.github.toLowerCase()
@@ -35,7 +38,7 @@ const BEST_MIN_UP = 3
  * 블로그 자체 댓글 창 (GitHub Discussions 에 저장, GitHub 로그인).
  * 인기/최신 탭, BEST, 좋아요·싫어요, 답글을 지원합니다. 서버 쪽은 src/pages/api/comments.
  */
-export default function Comments({ term, title = "댓글", composeOnly, discussionReactions, placeholder, onPosted, board }: Props) {
+export default function Comments({ term, title = "댓글", composeOnly, discussionReactions, placeholder, onPosted, board, detailId, onClose }: Props) {
   const router = useRouter()
   const { asPath } = router
   const key = term ?? asPath.split(/[?#]/)[0].replace(/^\//, "")
@@ -158,6 +161,20 @@ export default function Comments({ term, title = "댓글", composeOnly, discussi
   const fresh = list.filter((c) => !order.includes(c.id)).reverse()
   const sorted = [...fresh, ...order.map((id) => byId.get(id)).filter(Boolean)] as Comment[]
   if (composeOnly) return <section className="cmt cmt-compose-only" aria-label={title}>{composer}</section>
+  if (detailId) {
+    const c = list.find((x) => x.id === detailId)
+    return (
+      <NoteDetail onClose={() => onClose?.()}>
+        {c ? (
+          <ul className="cmt-list">
+            <Item c={c} viewer={viewer} onReact={onReact} onDelete={(x) => { onClose?.(); onDelete(x) }} onReply={(b) => onPost(b, c.id)} defaultOpen />
+          </ul>
+        ) : (
+          <p className="cmt-empty">{status === "error" ? "포스트잇을 불러오지 못했어요." : status === "loading" ? "불러오는 중…" : "지워진 포스트잇이에요."}</p>
+        )}
+      </NoteDetail>
+    )
+  }
 
   const isBest = (c: Comment, i: number) => tab === "best" && i < BEST_TOP && c.up >= BEST_MIN_UP && c.up > c.down
 

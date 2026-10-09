@@ -7,6 +7,7 @@ import { ThumbDownIcon, ThumbUpIcon } from "./Icons"
 import { ago, REACTIONS, refreshCommunity, type Community } from "src/lib/community"
 import { hasSession, login, syncSession } from "src/lib/session"
 import { postitStyle } from "src/lib/postit"
+import Comments from "./Comments"
 import NoteDialog from "./NoteDialog"
 
 const PINNED: string = (CONFIG as any).guestbookPinned || ""
@@ -41,14 +42,18 @@ export default function GuestStrip({ status, data }: Props) {
   const [reactions, setReactions] = useState<Reaction[] | null>(null)
   // 포스트잇마다 답글·좋아요·싫어요 수 (GitHub 댓글 번호로 짝을 맞춥니다)
   const [stats, setStats] = useState<Map<number, Comment>>(new Map())
-  useEffect(() => {
-    const read = () =>
+  const readThread = useCallback(
+    () =>
       fetchThread("guestbook")
         .then((t) => {
           setReactions(t.reactions)
           setStats(new Map(t.comments.map((c) => [c.dbId, c])))
         })
-        .catch(() => {})
+        .catch(() => {}),
+    []
+  )
+  useEffect(() => {
+    const read = readThread
     read()
     window.addEventListener("sessionchange", read)
     return () => window.removeEventListener("sessionchange", read)
@@ -83,8 +88,15 @@ export default function GuestStrip({ status, data }: Props) {
       alert(e.message)
     }
   }
-  // 포스트잇(또는 답글 버튼)을 누르면 방명록에서 그 포스트잇을 펼쳐 봅니다
-  const openNote = (c?: Comment) => router.push(c ? `/guestbook?open=${encodeURIComponent(c.id)}` : "/guestbook")
+  // 포스트잇(또는 답글 버튼)을 누르면 이 화면에서 바로 자세히 보기 창을 띄웁니다
+  const [detailId, setDetailId] = useState<string | null>(null)
+  const openNote = (c?: Comment) => (c ? setDetailId(c.id) : router.push("/guestbook"))
+  const closeNote = useCallback(() => {
+    setDetailId(null)
+    // 창에서 누른 좋아요·답글이 띠 숫자에도 보이도록 다시 읽습니다
+    readThread()
+    refreshCommunity()
+  }, [readThread])
 
   // 포스트잇 줄: 스크롤바 대신 ‹ › 로 넘기고, 더 볼 것이 있는 쪽 끝만 흐리게 합니다
   const track = useRef<HTMLDivElement>(null)
@@ -164,9 +176,9 @@ export default function GuestStrip({ status, data }: Props) {
                   key={n.id}
                   className={n.pinned ? "postit postit-pinned" : "postit"}
                   style={postitStyle(i, n.pinned)}
-                  role="link"
+                  role="button"
                   tabIndex={0}
-                  aria-label={`${n.login}의 포스트잇 방명록에서 보기`}
+                  aria-label={`${n.login}의 포스트잇 자세히 보기`}
                   onClick={() => openNote(c)}
                   onKeyDown={(e) => { if (e.key === "Enter") openNote(c) }}
                 >
@@ -196,6 +208,7 @@ export default function GuestStrip({ status, data }: Props) {
         </div>
       )}
       {writing && <NoteDialog onClose={closeDialog} />}
+      {detailId && <Comments term="guestbook" title="포스트잇" detailId={detailId} onClose={closeNote} />}
     </section>
   )
 }
