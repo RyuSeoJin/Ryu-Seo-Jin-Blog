@@ -2,6 +2,7 @@ import Link from "next/link"
 import { useRouter } from "next/router"
 import { useCallback, useEffect, useState, type MouseEvent } from "react"
 import { CONFIG } from "site.config"
+import { fetchThread, react, REACTION_KINDS, type Reaction } from "src/lib/comments"
 import { ago, REACTIONS, refreshCommunity, type Community } from "src/lib/community"
 import { hasSession, login, syncSession } from "src/lib/session"
 import NoteDialog from "./NoteDialog"
@@ -36,6 +37,32 @@ export default function GuestStrip({ status, data }: Props) {
       window.removeEventListener("storage", read)
     }
   }, [])
+
+  // 방명록 반응: 띠 아래 줄에서 바로 누릅니다. 내가 누른 것까지 알기 위해 댓글 API 로 읽습니다.
+  const [reactions, setReactions] = useState<Reaction[] | null>(null)
+  useEffect(() => {
+    const read = () => fetchThread("guestbook").then((t) => setReactions(t.reactions)).catch(() => {})
+    read()
+    window.addEventListener("sessionchange", read)
+    return () => window.removeEventListener("sessionchange", read)
+  }, [])
+  // API 를 아직 못 읽었으면 공개 API 숫자로 먼저 보여 줍니다 (REACTIONS 와 REACTION_KINDS 는 같은 순서)
+  const shownReactions: Reaction[] =
+    reactions ?? REACTION_KINDS.map(([content], i) => ({ content, count: data?.guestReactions[REACTIONS[i][0]] ?? 0, mine: false }))
+  const onReact = async (r: Reaction) => {
+    if (!hasSession()) return login()
+    const on = !r.mine
+    const apply = (on: boolean) => (list: Reaction[]) =>
+      list.map((x) => (x.content === r.content ? { ...x, mine: on, count: Math.max(0, x.count + (on ? 1 : -1)) } : x))
+    setReactions(apply(on)(shownReactions))
+    try {
+      await react({ term: "guestbook" }, r.content, on)
+      refreshCommunity()
+    } catch (e: any) {
+      setReactions((list) => (list ? apply(!on)(list) : list))
+      alert(e.message)
+    }
+  }
 
   // 작성 팝업
   const [writing, setWriting] = useState(false)
@@ -72,36 +99,46 @@ export default function GuestStrip({ status, data }: Props) {
           {status !== "ready" && <span>{status === "loading" ? "불러오는 중…" : "지금은 불러오지 못했어요"}</span>}
           <Link href="/guestbook" className="cork-all">방명록 전체보기</Link>
         </div>
+        {/* 붙이기 칸은 포스트잇이 많아도 늘 보이도록 맨 앞에 둡니다 */}
+        <a href={WRITE_URL} className="postit-add" onClick={addNote}>
+          <span>{notes.length ? "포스트잇\n붙이기 +" : "포스트잇을\n붙여 주세요 +"}</span>
+          {!loggedIn && <small>포스트잇을 붙이려면 GitHub 로그인이 필요합니다</small>}
+        </a>
         {/* 블로그 주인이 붙여 둔 고정 포스트잇 (site.config.js 의 guestbookPinned) */}
-        {PINNED && (
+        {PINNED && !notes.some((n) => n.pinned) && (
           <Link href="/guestbook" className="postit postit-pinned" style={{ background: "#ffffff", transform: "rotate(-1deg)" }}>
             <span className="postit-body">{PINNED}</span>
             <span className="postit-who">{CONFIG.profile.name} · 주인장</span>
           </Link>
         )}
-        {notes.map((n, i) => (
-          <a key={n.id} href={n.url} target="_blank" rel="noopener noreferrer" className="postit" style={{ background: COLORS[i % COLORS.length], transform: `rotate(${TILTS[i % TILTS.length]}deg)` }}>
-            <span className="postit-body">{n.body || "(내용 없음)"}</span>
-            <span className="postit-who">{n.login} · {ago(n.createdAt)}</span>
-          </a>
-        ))}
-        <a href={WRITE_URL} className="postit-add" onClick={addNote}>
-          <span>{notes.length ? "포스트잇\n붙이기 +" : "포스트잇을\n붙여 주세요 +"}</span>
-          {!loggedIn && <small>포스트잇을 붙이려면 GitHub 로그인이 필요합니다</small>}
-        </a>
+        {notes.map((n, i) =>
+          n.pinned ? (
+            <Link key={n.id} href="/guestbook" className="postit postit-pinned" style={{ background: "#ffffff", transform: "rotate(-1deg)" }}>
+              <span className="postit-body">{n.body || "(내용 없음)"}</span>
+              <span className="postit-who">{CONFIG.profile.name} · 주인장 · {ago(n.createdAt)}</span>
+            </Link>
+          ) : (
+            <Link key={n.id} href="/guestbook" className="postit" style={{ background: COLORS[i % COLORS.length], transform: `rotate(${TILTS[i % TILTS.length]}deg)` }}>
+              <span className="postit-body">{n.body || "(내용 없음)"}</span>
+              <span className="postit-who">{n.login} · {ago(n.createdAt)}</span>
+            </Link>
+          )
+        )}
       </div>
       {/* 방명록에 남겨진 반응을 한 줄로 모아 보여줍니다. 누르면 방명록에서 반응을 남길 수 있어요. */}
       {status === "ready" && (
-        <Link href="/guestbook" className="cork-reactions" aria-label="방명록 반응 보기·남기기">
+        <div className="cork-reactions" role="group" aria-label="방명록 반응">
           <span className="cork-count">포스트잇 <b>{data!.guestTotal}</b>장</span>
           <span className="cork-reactions-label">방명록 반응</span>
-          {REACTIONS.map(([k, emoji, label]) => (
-            <span key={k} className={data!.guestReactions[k] ? "rx on" : "rx"} title={label}>
-              {emoji} <b>{data!.guestReactions[k] || 0}</b>
-            </span>
-          ))}
-          <span className="cork-reactions-go">반응 남기기 →</span>
-        </Link>
+          {shownReactions.map((r) => {
+            const [, emoji, label] = REACTION_KINDS.find(([c]) => c === r.content)!
+            return (
+              <button key={r.content} type="button" className={r.count ? "rx on" : "rx"} aria-pressed={r.mine} title={loggedIn ? label : `${label} · 누르려면 GitHub 로그인`} onClick={() => onReact(r)}>
+                {emoji} <b>{r.count}</b>
+              </button>
+            )
+          })}
+        </div>
       )}
       {writing && <NoteDialog onClose={closeDialog} />}
     </section>

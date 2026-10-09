@@ -6,7 +6,7 @@ import { CONFIG } from "site.config"
  * 댓글은 글 주소(slug)를 토론 제목으로 쓰고, 방명록은 "guestbook" 토론 하나에 모읍니다 (src/components/Comments.tsx).
  * 한 번 불러온 결과는 5분간 브라우저에 보관해 요청을 아낍니다.
  */
-export type Note = { id: number; login: string; avatar: string; body: string; createdAt: string; url: string }
+export type Note = { id: number; login: string; avatar: string; body: string; createdAt: string; url: string; pinned?: boolean }
 export type RecentComment = Note & { slug: string }
 /** GitHub 반응 종류 (API 이름 → 이모지) */
 export const REACTIONS: [key: string, emoji: string, label: string][] = [
@@ -23,8 +23,10 @@ export type Community = {
 }
 
 const API = `https://api.github.com/repos/${CONFIG.giscus.repo}`
-const CACHE_KEY = "community-v2"
+const CACHE_KEY = "community-v3"
 const CACHE_MS = 5 * 60 * 1000
+/** 메인 방명록 띠에 보여 줄 최근 포스트잇 수 (주인장 고정 포스트잇은 따로) */
+export const GUEST_SHOWN = 6
 
 /** 마크다운·인용을 걷어낸 짧은 문장 */
 export function plain(md: string): string {
@@ -67,9 +69,14 @@ async function load(): Promise<Community> {
     else if (d.comments > 0) commentCounts[d.title] = (commentCounts[d.title] || 0) + d.comments
   }
 
-  const guestbook: Note[] = guest
-    ? ((await getJson(`${API}/discussions/${guest.number}/comments?per_page=100`)) as any[]).slice(-8).reverse().map(toNote)
-    : []
+  // 방명록: 블로그 주인이 남긴 것(최근 2개)은 맨 앞에 고정, 나머지는 최근 것부터 GUEST_SHOWN 개
+  const owner = CONFIG.profile.github.toLowerCase()
+  const all: Note[] = guest ? ((await getJson(`${API}/discussions/${guest.number}/comments?per_page=100`)) as any[]).map(toNote) : []
+  const isOwner = (n: Note) => n.login.toLowerCase() === owner
+  const guestbook: Note[] = [
+    ...all.filter(isOwner).slice(-2).reverse().map((n) => ({ ...n, pinned: true })),
+    ...all.filter((n) => !isOwner(n)).slice(-GUEST_SHOWN).reverse(),
+  ]
 
   // 최근에 댓글이 달린 글 3개에서 마지막 댓글을 하나씩 가져옵니다
   const active = list
