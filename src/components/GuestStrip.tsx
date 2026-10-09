@@ -10,8 +10,8 @@ const PINNED: string = (CONFIG as any).guestbookPinned || ""
 
 type Props = { status: "loading" | "ready" | "error"; data: Community | null }
 
-// 블로그 보라색과 어울리는 파스텔 포스트잇
-const COLORS = ["#e9e7ff", "#fde6f1", "#e1ebff", "#f1e6ff", "#e4f3ff"]
+// 클래식 포스트잇 색 (채도를 한 단계 낮춰 보라 테마와 부딪히지 않게)
+const COLORS = ["#fff4b8", "#d9f5e0", "#ffdbe6", "#dbe8ff", "#ffe6c7"]
 const TILTS = [-2, 1.5, -1, 2, -1.5]
 
 // 방명록 작성칸으로 바로 가는 주소 (새 탭으로 열 때. 방명록 페이지가 write=1 을 보면 작성칸으로 스크롤)
