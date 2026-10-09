@@ -2,7 +2,7 @@ import Link from "next/link"
 import { useRouter } from "next/router"
 import { useCallback, useEffect, useState, type MouseEvent } from "react"
 import { CONFIG } from "site.config"
-import { ago, refreshCommunity, type Community } from "src/lib/community"
+import { ago, REACTIONS, refreshCommunity, type Community } from "src/lib/community"
 import { hasSession, login } from "src/lib/session"
 import NoteDialog from "./NoteDialog"
 
@@ -65,28 +65,42 @@ export default function GuestStrip({ status, data }: Props) {
 
   return (
     <section className="cork-strip" aria-label="방명록">
-      <div className="cork-head">
-        <b>방명록</b>
-        {status === "ready" ? (data!.guestTotal > 0 && <span>{data!.guestTotal}개의 한마디</span>) : <span>{status === "loading" ? "불러오는 중…" : "지금은 불러오지 못했어요"}</span>}
-        <Link href="/guestbook" className="cork-all">방명록 전체보기</Link>
+      <div className="cork-row">
+        <div className="cork-head">
+          <b>방명록</b>
+          {status === "ready" ? (data!.guestTotal > 0 && <span>{data!.guestTotal}개의 한마디</span>) : <span>{status === "loading" ? "불러오는 중…" : "지금은 불러오지 못했어요"}</span>}
+          <Link href="/guestbook" className="cork-all">방명록 전체보기</Link>
+        </div>
+        {/* 블로그 주인이 붙여 둔 고정 포스트잇 (site.config.js 의 guestbookPinned) */}
+        {PINNED && (
+          <Link href="/guestbook" className="postit postit-pinned" style={{ background: "#ffffff", transform: "rotate(-1deg)" }}>
+            <span className="postit-body">{PINNED}</span>
+            <span className="postit-who">{CONFIG.profile.name} · 주인장</span>
+          </Link>
+        )}
+        {notes.map((n, i) => (
+          <a key={n.id} href={n.url} target="_blank" rel="noopener noreferrer" className="postit" style={{ background: COLORS[i % COLORS.length], transform: `rotate(${TILTS[i % TILTS.length]}deg)` }}>
+            <span className="postit-body">{n.body || "(내용 없음)"}</span>
+            <span className="postit-who">{n.login} · {ago(n.createdAt)}</span>
+          </a>
+        ))}
+        <a href={WRITE_URL} className="postit-add" onClick={addNote}>
+          <span>{notes.length ? "포스트잇\n붙이기 +" : "포스트잇을\n붙여 주세요 +"}</span>
+          {!loggedIn && <small>포스트잇을 붙이려면 GitHub 로그인이 필요합니다</small>}
+        </a>
       </div>
-      {/* 블로그 주인이 붙여 둔 고정 포스트잇 (site.config.js 의 guestbookPinned) */}
-      {PINNED && (
-        <Link href="/guestbook" className="postit postit-pinned" style={{ background: "#ffffff", transform: "rotate(-1deg)" }}>
-          <span className="postit-body">{PINNED}</span>
-          <span className="postit-who">{CONFIG.profile.name} · 주인장</span>
+      {/* 방명록에 남겨진 반응을 한 줄로 모아 보여줍니다. 누르면 방명록에서 반응을 남길 수 있어요. */}
+      {status === "ready" && (
+        <Link href="/guestbook" className="cork-reactions" aria-label="방명록 반응 보기·남기기">
+          <span className="cork-reactions-label">방명록 반응</span>
+          {REACTIONS.map(([k, emoji, label]) => (
+            <span key={k} className={data!.guestReactions[k] ? "rx on" : "rx"} title={label}>
+              {emoji} <b>{data!.guestReactions[k] || 0}</b>
+            </span>
+          ))}
+          <span className="cork-reactions-go">반응 남기기 →</span>
         </Link>
       )}
-      {notes.map((n, i) => (
-        <a key={n.id} href={n.url} target="_blank" rel="noopener noreferrer" className="postit" style={{ background: COLORS[i % COLORS.length], transform: `rotate(${TILTS[i % TILTS.length]}deg)` }}>
-          <span className="postit-body">{n.body || "(내용 없음)"}</span>
-          <span className="postit-who">{n.login} · {ago(n.createdAt)}</span>
-        </a>
-      ))}
-      <a href={WRITE_URL} className="postit-add" onClick={addNote}>
-        <span>{notes.length ? "포스트잇\n붙이기 +" : "포스트잇을\n붙여 주세요 +"}</span>
-        {!loggedIn && <small>포스트잇을 붙이려면 GitHub 로그인이 필요합니다</small>}
-      </a>
       {writing && <NoteDialog onClose={closeDialog} />}
     </section>
   )

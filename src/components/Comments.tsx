@@ -9,6 +9,8 @@ const G = CONFIG.giscus
 type Props = {
   /** 글 댓글은 생략(주소별로 묶임). 방명록처럼 고정된 토론에 연결할 때 이름을 넘깁니다. */
   term?: string
+  /** 반응(이모지) 줄을 보일지. 포스트잇 작성 팝업처럼 글만 남기는 곳에서는 끕니다. */
+  reactions?: boolean
   title?: string
 }
 
@@ -22,7 +24,7 @@ function themeUrl(mode: string) {
  * giscus 댓글 (GitHub Discussions 에 저장).
  * 로그인 세션은 사이트 전체가 공유하고(src/lib/session.ts), 화면 테마가 바뀌면 댓글 창 테마도 바뀝니다.
  */
-export default function Comments({ term, title = "댓글" }: Props) {
+export default function Comments({ term, title = "댓글", reactions = true }: Props) {
   const ref = useRef<HTMLDivElement>(null)
   const [theme] = useTheme()
   const gTheme = themeUrl(theme)
@@ -47,8 +49,7 @@ export default function Comments({ term, title = "댓글" }: Props) {
       "data-mapping": term ? "specific" : "pathname",
       ...(term ? { "data-term": term } : {}),
       "data-strict": "1",
-      // 글에는 반응(이모지)을 받고, 방명록(포스트잇)은 한마디만 남기도록 끕니다
-      "data-reactions-enabled": term ? "0" : "1",
+      "data-reactions-enabled": reactions ? "1" : "0",
       // 로그인한 사람 정보를 받아 헤더에 보여주기 위해 켭니다
       "data-emit-metadata": "1",
       "data-input-position": "top",

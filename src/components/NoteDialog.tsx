@@ -31,7 +31,7 @@ export default function NoteDialog({ onClose }: Props) {
         </div>
         <p className="note-dialog-hint">아래 칸에 한마디를 쓰고 <b>댓글</b> 버튼을 누르면 메인 방명록 띠에 포스트잇으로 붙어요.</p>
         <div className="note-dialog-body">
-          <Comments term="guestbook" title="방명록 쓰기" />
+          <Comments term="guestbook" title="방명록 쓰기" reactions={false} />
         </div>
       </div>
     </div>,

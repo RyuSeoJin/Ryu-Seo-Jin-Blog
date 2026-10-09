@@ -217,10 +217,21 @@ button, input { font: inherit; color: inherit; }
 /* ── 메인 상단: 방명록 포스트잇 띠 ── */
 .strip-wrap { max-width: 1280px; padding-top: 22px; }
 .cork-strip {
-  display: flex; align-items: center; gap: 18px; overflow-x: auto; padding: 16px 20px;
-  border: 1px solid var(--accent); border-radius: 14px; scrollbar-width: thin;
+  display: flex; flex-direction: column; border: 1px solid var(--accent); border-radius: 14px; overflow: hidden;
   background: color-mix(in srgb, var(--accent) 8%, var(--surface));
 }
+.cork-row { display: flex; align-items: center; gap: 18px; overflow-x: auto; padding: 16px 20px; scrollbar-width: thin; }
+/* 포스트잇 아래 한 줄: 방명록 반응 개수 */
+.cork-reactions {
+  display: flex; align-items: center; gap: 6px; flex-wrap: wrap; padding: 8px 20px;
+  border-top: 1px solid color-mix(in srgb, var(--accent) 35%, transparent); font-size: 13px; color: var(--muted);
+}
+.cork-reactions-label { font-weight: 700; color: var(--accent-ink); margin-right: 4px; }
+.cork-reactions .rx { display: inline-flex; align-items: center; gap: 4px; padding: 2px 8px; border-radius: 999px; opacity: 0.55; }
+.cork-reactions .rx b { font-weight: 600; font-variant-numeric: tabular-nums; }
+.cork-reactions .rx.on { opacity: 1; background: var(--accent-soft); color: var(--accent-ink); border: 1px solid color-mix(in srgb, var(--accent) 45%, transparent); }
+.cork-reactions-go { margin-left: auto; font-size: 12.5px; color: var(--accent-ink); }
+.cork-reactions:hover .cork-reactions-go { text-decoration: underline; }
 .cork-head { flex: none; display: flex; flex-direction: column; gap: 4px; color: var(--text); padding-right: 6px; }
 .cork-head b { font-family: Gaegu, var(--f-sans); font-size: 28px; line-height: 1; color: var(--accent-ink); }
 .cork-head span { font-size: 11.5px; color: var(--muted); white-space: nowrap; }

@@ -8,15 +8,22 @@ import { CONFIG } from "site.config"
  */
 export type Note = { id: number; login: string; avatar: string; body: string; createdAt: string; url: string }
 export type RecentComment = Note & { slug: string }
+/** GitHub 반응 종류 (API 이름 → 이모지) */
+export const REACTIONS: [key: string, emoji: string, label: string][] = [
+  ["+1", "👍", "좋아요"], ["heart", "❤️", "하트"], ["hooray", "🎉", "축하"], ["laugh", "😄", "웃음"],
+  ["rocket", "🚀", "로켓"], ["eyes", "👀", "눈"], ["confused", "😕", "갸우뚱"], ["-1", "👎", "별로"],
+]
 export type Community = {
   guestbook: Note[]
   guestTotal: number
+  /** 방명록 토론 자체에 달린 반응 개수 (REACTIONS 의 key 별) */
+  guestReactions: Record<string, number>
   commentCounts: Record<string, number>
   recent: RecentComment[]
 }
 
 const API = `https://api.github.com/repos/${CONFIG.giscus.repo}`
-const CACHE_KEY = "community-v1"
+const CACHE_KEY = "community-v2"
 const CACHE_MS = 5 * 60 * 1000
 
 /** 마크다운·인용을 걷어낸 짧은 문장 */
@@ -81,7 +88,10 @@ async function load(): Promise<Community> {
     .filter(Boolean)
     .sort((a, b) => (a!.createdAt < b!.createdAt ? 1 : -1)) as RecentComment[]
 
-  return { guestbook, guestTotal: guest?.comments ?? 0, commentCounts, recent }
+  const guestReactions: Record<string, number> = {}
+  for (const [k] of REACTIONS) guestReactions[k] = guest?.reactions?.[k] ?? 0
+
+  return { guestbook, guestTotal: guest?.comments ?? 0, guestReactions, commentCounts, recent }
 }
 
 let inflight: Promise<Community> | null = null
