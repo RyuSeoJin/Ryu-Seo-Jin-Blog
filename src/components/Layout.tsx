@@ -93,7 +93,7 @@ function Account() {
   if (!s.ready) return <span className="account-ph" aria-hidden />
   if (!s.session)
     return (
-      <button className="login-btn" onClick={login} title="GitHub로 로그인하면 댓글과 방명록을 바로 쓸 수 있어요">
+      <button className="login-btn" onClick={() => login()} title="GitHub로 로그인하면 댓글과 방명록을 바로 쓸 수 있어요">
         <GithubIcon /> <span>로그인</span>
       </button>
     )

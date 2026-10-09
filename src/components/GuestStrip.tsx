@@ -1,6 +1,9 @@
 import Link from "next/link"
 import { CONFIG } from "site.config"
+import { useRouter } from "next/router"
+import type { MouseEvent } from "react"
 import { ago, type Community } from "src/lib/community"
+import { hasSession, login } from "src/lib/session"
 
 const PINNED: string = (CONFIG as any).guestbookPinned || ""
 
@@ -10,8 +13,19 @@ const COLORS = ["#fff3a6", "#c8f0d2", "#ffd6e0", "#cfe3ff", "#ffe2b8"]
 const TILTS = [-2, 1.5, -1, 2, -1.5]
 
 /** 메인 상단 코르크 띠: 방명록 최근 글을 포스트잇으로 보여줍니다 */
+// 방명록 작성칸으로 바로 가는 주소 (방명록 페이지가 write=1 을 보면 작성칸으로 스크롤)
+const WRITE_URL = "/guestbook?write=1"
+
 export default function GuestStrip({ status, data }: Props) {
   const notes = data?.guestbook ?? []
+  const router = useRouter()
+  // 로그인 전이면 GitHub 승인으로 바로 보내고, 승인 후 방명록 작성칸으로 돌아옵니다
+  const addNote = (e: MouseEvent) => {
+    if (e.metaKey || e.ctrlKey || e.shiftKey || e.button !== 0) return
+    e.preventDefault()
+    if (hasSession()) router.push(WRITE_URL)
+    else login(WRITE_URL)
+  }
   return (
     <section className="cork-strip" aria-label="방명록">
       <div className="cork-head">
@@ -31,9 +45,9 @@ export default function GuestStrip({ status, data }: Props) {
           <span className="postit-who">{n.login} · {ago(n.createdAt)}</span>
         </a>
       ))}
-      <Link href="/guestbook" className="postit-add">
+      <a href={WRITE_URL} className="postit-add" onClick={addNote}>
         {notes.length ? "포스트잇\n붙이기 +" : "첫 포스트잇을\n붙여 주세요 +"}
-      </Link>
+      </a>
     </section>
   )
 }

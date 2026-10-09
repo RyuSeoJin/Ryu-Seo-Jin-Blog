@@ -40,9 +40,9 @@ export function captureSessionFromUrl(): boolean {
   return true
 }
 
-/** GitHub 승인 화면으로 이동했다가 지금 페이지로 돌아옵니다 */
-export function login() {
-  const back = new URL(window.location.href)
+/** GitHub 승인 화면으로 이동했다가 지금 페이지(또는 returnTo 경로)로 돌아옵니다 */
+export function login(returnTo?: string) {
+  const back = new URL(returnTo || window.location.href, window.location.origin)
   back.searchParams.delete("giscus")
   back.hash = ""
   window.location.href = `${GISCUS_ORIGIN}/api/oauth/authorize?redirect_uri=${encodeURIComponent(back.toString())}`
