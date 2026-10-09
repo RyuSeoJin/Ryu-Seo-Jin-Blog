@@ -53,3 +53,19 @@ export function logout() {
   // 댓글 창이 세션 없이 다시 열리도록 새로고침합니다
   window.location.reload()
 }
+
+/** 블로그 주인(관리자)인지: 댓글 로그인 정보 또는 /admin(Decap) 로그인 정보로 판별합니다.
+ *  화면에 글쓰기 버튼을 보여줄지만 정하며, 실제 저장 권한은 /admin 의 GitHub 로그인이 검사합니다. */
+export function isOwner(owner: string): boolean {
+  const o = owner.toLowerCase()
+  const v = getViewer()
+  if (v?.login?.toLowerCase() === o) return true
+  return safe(() => {
+    const d = JSON.parse(localStorage.getItem("decap-cms-user") || "null")
+    return String(d?.login || "").toLowerCase() === o
+  }, false)
+}
+
+/** 관리자 화면 주소: 새 글, 특정 글 수정 */
+export const adminNewPost = "/admin#/collections/posts/new"
+export const adminEditPost = (slug: string) => `/admin#/collections/posts/entries/${encodeURIComponent(slug)}`

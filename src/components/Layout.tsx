@@ -2,8 +2,8 @@ import Link from "next/link"
 import { useRouter } from "next/router"
 import { ReactNode, useEffect, useRef, useState } from "react"
 import { CONFIG } from "site.config"
-import { captureSessionFromUrl, getViewer, hasSession, login, logout, type Viewer } from "src/lib/session"
-import { GithubIcon, MoonIcon, RssIcon, SunIcon } from "./Icons"
+import { adminNewPost, captureSessionFromUrl, getViewer, hasSession, isOwner, login, logout, type Viewer } from "src/lib/session"
+import { GithubIcon, MoonIcon, PenIcon, RssIcon, SunIcon } from "./Icons"
 
 type Theme = "light" | "dark"
 
@@ -30,6 +30,33 @@ function ThemeToggle() {
     <button className="icon-btn" onClick={() => setTheme(next)} aria-label={next === "dark" ? "어두운 화면으로" : "밝은 화면으로"} title={next === "dark" ? "어두운 화면" : "밝은 화면"}>
       {theme === "dark" ? <SunIcon /> : <MoonIcon />}
     </button>
+  )
+}
+
+/** 지금 보는 사람이 블로그 주인인지 (로그인 정보가 바뀌면 다시 계산) */
+export function useIsOwner(): boolean {
+  const [owner, setOwner] = useState(false)
+  useEffect(() => {
+    const read = () => setOwner(isOwner(CONFIG.profile.github))
+    read()
+    window.addEventListener("sessionchange", read)
+    window.addEventListener("storage", read)
+    return () => {
+      window.removeEventListener("sessionchange", read)
+      window.removeEventListener("storage", read)
+    }
+  }, [])
+  return owner
+}
+
+/** 관리자일 때만 헤더에 보이는 글쓰기 버튼 */
+function WriteButton() {
+  const owner = useIsOwner()
+  if (!owner) return null
+  return (
+    <a className="write-btn" href={adminNewPost} title="새 글 쓰기 (관리자)">
+      <PenIcon /> <span>글쓰기</span>
+    </a>
   )
 }
 
@@ -82,6 +109,12 @@ function Account() {
             <b>{v ? `@${v.login}` : "GitHub로 로그인됨"}</b>
             <span>글 댓글과 방명록을 바로 쓸 수 있어요</span>
           </div>
+          {v && v.login.toLowerCase() === CONFIG.profile.github.toLowerCase() && (
+            <>
+              <a href={adminNewPost} role="menuitem">✏️ 새 글 쓰기</a>
+              <a href="/admin" role="menuitem">글 관리 (관리자 화면)</a>
+            </>
+          )}
           <Link href="/guestbook" role="menuitem" onClick={() => setOpen(false)}>방명록 쓰기</Link>
           {v && <a href={v.url} target="_blank" rel="noopener noreferrer" role="menuitem">GitHub 프로필</a>}
           <button role="menuitem" onClick={logout}>로그아웃</button>
@@ -108,6 +141,7 @@ export default function Layout({ children }: { children: ReactNode }) {
             {/* 메인 화면 안에서 작업대를 엽니다. 주소는 /fx (직접 열면 작업대 전체 화면) */}
             <Link href={{ pathname: "/", query: { tool: "fx" } }} as="/fx" aria-current={query.tool === "fx" ? "page" : undefined}>FX</Link>
             <ThemeToggle />
+            <WriteButton />
             <Account />
           </nav>
         </div>
@@ -116,9 +150,10 @@ export default function Layout({ children }: { children: ReactNode }) {
       <footer className="site-footer">
         <div className="container">
           <span>© {CONFIG.since}–{new Date().getFullYear()} {CONFIG.profile.nameEn}</span>
-          <a href="/feed">
-            <RssIcon /> RSS
-          </a>
+          <span className="foot-links">
+            <a href="/feed"><RssIcon /> RSS</a>
+            <a href="/admin">관리자</a>
+          </span>
         </div>
       </footer>
     </>

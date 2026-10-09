@@ -242,6 +242,19 @@ button, input { font: inherit; color: inherit; }
 .site-footer a:hover { color: var(--text); }
 .site-footer svg { width: 14px; height: 14px; }
 
+/* ── 관리자: 글쓰기 버튼, 글 수정 링크 ── */
+.write-btn {
+  height: 32px; padding: 0 12px; margin-left: 4px; border-radius: 8px; background: var(--accent); color: #fff;
+  font-size: 13.5px; font-weight: 600; display: inline-flex; align-items: center; gap: 6px; white-space: nowrap;
+}
+.write-btn:hover { filter: brightness(1.08); }
+.write-btn svg { width: 15px; height: 15px; }
+@media (max-width: 480px) { .write-btn span { display: none; } .write-btn { padding: 0 8px; } }
+.edit-link { margin-left: auto; display: inline-flex; align-items: center; gap: 5px; font-size: 13px; color: var(--accent); padding: 2px 8px; border-radius: 6px; }
+.edit-link:hover { background: var(--accent-soft); }
+.edit-link svg { width: 13px; height: 13px; }
+.foot-links { display: inline-flex; gap: 16px; align-items: center; }
+
 /* ── 로그인 (헤더) ── */
 .account-ph { width: 34px; height: 34px; }
 .login-btn {

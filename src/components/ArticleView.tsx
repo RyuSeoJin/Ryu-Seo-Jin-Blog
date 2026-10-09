@@ -2,7 +2,10 @@ import Link from "next/link"
 import type { MouseEvent } from "react"
 import type { PostMeta } from "src/lib/posts"
 import { tagLabel } from "src/lib/tags"
+import { adminEditPost } from "src/lib/session"
 import Comments from "./Comments"
+import { PenIcon } from "./Icons"
+import { useIsOwner } from "./Layout"
 
 export type Nav = { slug: string; title: string } | null
 
@@ -19,6 +22,7 @@ type Props = {
 
 /** 글 본문 화면. 글 페이지(/[slug])와 메인의 오른쪽 패널이 함께 씁니다. */
 export default function ArticleView({ post, html, prev, next, onNavigate, onTag }: Props) {
+  const owner = useIsOwner()
   // 새 탭 열기(Ctrl·⌘·가운데 클릭)는 그대로 두고, 일반 클릭만 패널 안에서 처리합니다
   const inPanel = (fn?: () => void) => (e: MouseEvent) => {
     if (!fn || e.metaKey || e.ctrlKey || e.shiftKey || e.button !== 0) return
@@ -33,6 +37,11 @@ export default function ArticleView({ post, html, prev, next, onNavigate, onTag 
         <div className="meta">
           <time dateTime={post.date}>{post.date.replace(/-/g, ".")}</time>
           <span className="dot" />읽는 데 {post.readMinutes}분
+          {owner && (
+            <a className="edit-link" href={adminEditPost(post.slug)} title="관리자 화면에서 이 글 수정">
+              <PenIcon /> 이 글 수정
+            </a>
+          )}
         </div>
         {post.tags.length > 0 && (
           <div className="tags">

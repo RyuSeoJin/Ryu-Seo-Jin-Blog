@@ -31,3 +31,6 @@ export const LinkedinIcon = (p: P) => (
 export const RssIcon = (p: P) => (
   <svg {...base} {...p}><path d="M5 11a8 8 0 0 1 8 8M5 5a14 14 0 0 1 14 14" /><circle cx="6" cy="18" r="1" fill="currentColor" /></svg>
 )
+export const PenIcon = (p: P) => (
+  <svg {...base} {...p}><path d="M12 20h9" /><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z" /></svg>
+)
