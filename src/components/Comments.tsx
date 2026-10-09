@@ -149,7 +149,8 @@ export default function Comments({ term, title = "댓글", composeOnly, discussi
   const list = thread?.comments ?? []
   const order = useMemo(() => {
     const byNew = (a: Comment, b: Comment) => (a.createdAt < b.createdAt ? 1 : -1)
-    const by = tab === "best" ? (a: Comment, b: Comment) => b.up - b.down - (a.up - a.down) || byNew(a, b) : byNew
+    // 인기: 좋아요 많은 순(같으면 최신 먼저), 최신: 가장 최근 것부터
+    const by = tab === "best" ? (a: Comment, b: Comment) => b.up - a.up || byNew(a, b) : byNew
     return [...list].sort(by).map((c) => c.id)
   }, [loadedAt, tab]) // eslint-disable-line react-hooks/exhaustive-deps
   // 방금 쓴 댓글처럼 정렬 뒤에 생긴 것은 맨 위에 둡니다
@@ -208,12 +209,21 @@ export default function Comments({ term, title = "댓글", composeOnly, discussi
                   </span>
                   <span className="board-foot">
                     <span className="postit-who">{c.author?.login ?? "알 수 없음"}{owner && " · 주인장"} · {stamp(c.createdAt).slice(2, 10)}</span>
-                    <span className="board-stats" aria-label={`좋아요 ${c.up}, 답글 ${c.replyCount}`}>
-                      {c.up > 0 && <span>👍 {c.up}</span>}
-                      {c.replyCount > 0 && <span>💬 {c.replyCount}</span>}
+                    <span className="board-stats" aria-label={`답글 ${c.replyCount}개, 좋아요 ${c.up}, 싫어요 ${c.down}`}>
+                      <span>💬 {c.replyCount}</span>
+                      <span>👍 {c.up}</span>
+                      <span>👎 {c.down}</span>
                     </span>
                   </span>
                 </button>
+                {/* 좋아요·싫어요는 포스트잇 밖에서 바로 누릅니다. 답글은 포스트잇을 열어서 */}
+                <div className="board-acts">
+                  <button type="button" className="cmt-chip" onClick={() => setOpenId(c.id)}>답글 달기</button>
+                  <span className="cmt-votes">
+                    <button type="button" className="cmt-chip" aria-pressed={c.myUp} onClick={() => onReact(c, "up")} aria-label="좋아요"><ThumbUpIcon /> 좋아요</button>
+                    <button type="button" className="cmt-chip" aria-pressed={c.myDown} onClick={() => onReact(c, "down")} aria-label="싫어요"><ThumbDownIcon /> 싫어요</button>
+                  </span>
+                </div>
               </li>
             )
           })}

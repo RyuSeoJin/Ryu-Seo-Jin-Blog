@@ -679,9 +679,13 @@ main.page-in { animation: rise-in 0.35s cubic-bezier(0.2, 0.7, 0.2, 1) both; }
 }
 .board-note .postit-body { -webkit-line-clamp: 5; }
 .board-note .cmt-best { font-family: var(--f-sans); }
-.board-foot { display: flex; align-items: flex-end; justify-content: space-between; gap: 6px; }
+.board > li { display: flex; flex-direction: column; gap: 10px; min-width: 0; }
+.board-foot { display: flex; flex-direction: column; gap: 4px; }
 .board-foot .postit-who { min-width: 0; }
-.board-stats { display: flex; gap: 6px; flex: none; font-size: 11.5px; color: #4b4f63; }
+.board-stats { display: flex; gap: 10px; font-size: 11.5px; color: #4b4f63; font-variant-numeric: tabular-nums; }
+.board-acts { display: flex; align-items: center; gap: 6px; }
+.board-acts .cmt-chip { height: 26px; padding: 0 8px; font-size: 12px; }
+.board-acts .cmt-votes { gap: 4px; }
 .board-detail { width: min(560px, 100%); }
 .board-detail .cmt-item { border-bottom: 0; padding-top: 4px; }
 @media (max-width: 480px) { .board { grid-template-columns: repeat(2, minmax(0, 1fr)); padding: 16px 12px; gap: 16px 12px; } }
