@@ -457,10 +457,10 @@ button, input { font: inherit; color: inherit; }
 
 /* ── 넓은 화면의 글 오른쪽 칸: 목차 + 댓글 ── */
 @media (min-width: 1200px) {
-  .article-wrap.with-side { grid-template-columns: minmax(0, 740px) 300px; gap: 40px; }
+  .article-wrap.with-side { grid-template-columns: minmax(0, 760px) 240px; gap: 36px; }
 }
 @media (min-width: 1180px) {
-  .reader.with-side { grid-template-columns: minmax(0, 1fr) 300px; gap: 36px; justify-content: stretch; }
+  .reader.with-side { grid-template-columns: minmax(0, 1fr) 240px; gap: 28px; justify-content: stretch; }
 }
 .post-side {
   position: sticky; top: calc(var(--header-h) + 24px); align-self: start;
