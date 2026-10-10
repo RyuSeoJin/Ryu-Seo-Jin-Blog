@@ -681,3 +681,83 @@ main.page-in { animation: rise-in 0.35s cubic-bezier(0.2, 0.7, 0.2, 1) both; }
 .board-detail { width: min(560px, 100%); }
 .board-detail .cmt-item { border-bottom: 0; padding-top: 4px; }
 @media (max-width: 480px) { .board { grid-template-columns: repeat(2, minmax(0, 1fr)); padding: 16px 12px; gap: 16px 12px; } }
+
+/* ── 글쓰기 화면 (/write) ── */
+.write-gate { padding-block: 80px; text-align: center; color: var(--muted); }
+.write-gate h1 { color: var(--text); margin: 0 0 10px; }
+.write-loading { color: var(--muted); padding: 24px 0; }
+.write-bar {
+  position: sticky; top: var(--header-h); z-index: 20; border-bottom: 1px solid var(--line);
+  background: color-mix(in srgb, var(--bg) 88%, transparent); backdrop-filter: blur(8px);
+}
+.write-bar-in { display: flex; align-items: center; gap: 12px; height: 52px; max-width: 1240px; }
+.write-back { display: inline-flex; align-items: center; gap: 6px; font-size: 13.5px; color: var(--text-2); }
+.write-back:hover { color: var(--text); }
+.write-state { font-size: 12.5px; color: var(--muted); margin-right: auto; }
+.write-mode { display: flex; padding: 3px; border-radius: 8px; background: var(--surface-2); }
+.write-mode button { border: 0; background: none; padding: 5px 10px; border-radius: 6px; font: inherit; font-size: 12.5px; color: var(--muted); cursor: pointer; }
+.write-mode button[aria-selected="true"] { background: var(--surface); color: var(--text); font-weight: 700; box-shadow: var(--shadow); }
+.write-save {
+  border: 0; border-radius: 8px; padding: 8px 14px; font: inherit; font-size: 13.5px; font-weight: 700; cursor: pointer;
+  background: var(--accent-btn); color: #fff;
+}
+.write-save:hover:not(:disabled) { background: var(--accent-btn-hover); }
+.write-save:disabled { opacity: 0.5; cursor: default; }
+.write-notice {
+  display: flex; align-items: center; gap: 12px; margin-top: 14px; padding: 10px 14px; border-radius: 10px; font-size: 13.5px;
+  max-width: 1240px; background: var(--surface-2); color: var(--text-2);
+}
+.write-notice.is-ok { background: color-mix(in srgb, #12a150 14%, var(--surface)); color: var(--text); }
+.write-notice.is-error { background: color-mix(in srgb, #e5484d 14%, var(--surface)); color: var(--text); }
+.write-notice a { color: var(--accent-ink); font-weight: 700; }
+.write-notice button { margin-left: auto; border: 0; background: none; font-size: 18px; color: var(--muted); cursor: pointer; }
+.write-grid { display: grid; grid-template-columns: minmax(0, 1fr); gap: 32px; padding-block: 28px 80px; max-width: 1240px; }
+@media (min-width: 1000px) { .write-grid { grid-template-columns: minmax(0, 1fr) 280px; } }
+.write-main { min-width: 0; max-width: 820px; width: 100%; margin: 0 auto; }
+.write-title {
+  display: block; width: 100%; box-sizing: border-box; border: 0; outline: 0; resize: none; overflow: hidden; padding: 0 0 0 54px;
+  background: none; color: var(--text); font: inherit; font-size: 34px; font-weight: 800; line-height: 1.3; letter-spacing: -0.02em;
+}
+.write-title::placeholder { color: color-mix(in srgb, var(--muted) 60%, transparent); }
+.write-editor { margin-top: 14px; }
+.write-editor .bn-container, .write-editor .bn-editor { background: transparent; font-family: var(--f-sans); }
+.write-editor .bn-editor { padding-inline: 54px 0; font-size: 16px; }
+.write-md {
+  display: block; width: 100%; min-height: 60vh; box-sizing: border-box; margin-top: 14px; padding: 16px 18px; resize: vertical;
+  border: 1px solid var(--line); border-radius: 10px; background: var(--surface); color: var(--text);
+  font-family: var(--f-mono); font-size: 13.5px; line-height: 1.7; outline: 0;
+}
+.write-md:focus { border-color: var(--accent); }
+.write-side { display: flex; flex-direction: column; gap: 16px; align-self: start; }
+@media (min-width: 1000px) { .write-side { position: sticky; top: calc(var(--header-h) + 72px); } }
+.write-field { display: flex; flex-direction: column; gap: 6px; font-size: 13px; }
+.write-field > span { font-weight: 700; color: var(--text-2); font-size: 12.5px; }
+.write-field input, .write-field select, .write-field textarea {
+  width: 100%; box-sizing: border-box; border: 1px solid var(--line); border-radius: 8px; padding: 8px 10px;
+  background: var(--surface); color: var(--text); font: inherit; font-size: 13.5px; outline: 0;
+}
+.write-field input:focus, .write-field select:focus, .write-field textarea:focus { border-color: var(--accent); }
+.write-field small { color: var(--muted); font-size: 11.5px; }
+.write-field small.is-error { color: #e5484d; }
+.write-slug { display: flex; align-items: center; border: 1px solid var(--line); border-radius: 8px; background: var(--surface); padding-left: 10px; }
+.write-slug em { font-style: normal; color: var(--muted); }
+.write-slug input { border: 0 !important; padding-left: 2px !important; }
+.write-slug input[readonly] { color: var(--muted); }
+.write-seg { display: grid; grid-template-columns: repeat(3, 1fr); padding: 3px; border-radius: 8px; background: var(--surface-2); }
+.write-seg button { border: 0; background: none; padding: 6px 0; border-radius: 6px; font: inherit; font-size: 12.5px; color: var(--muted); cursor: pointer; }
+.write-seg button[aria-pressed="true"] { background: var(--surface); color: var(--accent-ink); font-weight: 700; box-shadow: var(--shadow); }
+.write-tags { display: flex; flex-wrap: wrap; gap: 6px; padding: 6px; border: 1px solid var(--line); border-radius: 8px; background: var(--surface); }
+.write-tags input { flex: 1; min-width: 120px; border: 0 !important; padding: 4px !important; }
+.write-tag { border: 0; border-radius: 6px; padding: 3px 8px; background: var(--accent-soft); color: var(--accent-ink); font: inherit; font-size: 12px; cursor: pointer; }
+.write-thumb { position: relative; border-radius: 10px; overflow: hidden; border: 1px solid var(--line); }
+.write-thumb img { display: block; width: 100%; aspect-ratio: 16 / 9; object-fit: cover; }
+.write-thumb button { position: absolute; right: 8px; top: 8px; border: 0; border-radius: 6px; padding: 4px 8px; background: rgba(0, 0, 0, 0.6); color: #fff; font: inherit; font-size: 12px; cursor: pointer; }
+.write-thumb-add { border: 1px dashed var(--line); border-radius: 10px; padding: 18px; background: none; color: var(--muted); font: inherit; font-size: 13px; cursor: pointer; }
+.write-thumb-add:hover { border-color: var(--accent); color: var(--accent-ink); }
+.write-help { margin: 0; font-size: 12px; line-height: 1.7; color: var(--muted); }
+.write-help b { color: var(--text-2); }
+@media (max-width: 640px) {
+  .write-title { padding-left: 0; font-size: 26px; }
+  .write-editor .bn-editor { padding-inline: 20px 0; }
+  .write-mode { display: none; }
+}

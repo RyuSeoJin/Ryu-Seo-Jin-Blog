@@ -69,6 +69,6 @@ export function isOwner(owner: string): boolean {
   }, false)
 }
 
-/** 관리자 화면 주소: 새 글, 특정 글 수정 */
-export const adminNewPost = "/admin#/collections/posts/new"
-export const adminEditPost = (slug: string) => `/admin#/collections/posts/entries/${encodeURIComponent(slug)}`
+/** 글쓰기 화면 주소: 새 글, 특정 글 고치기 (블로그 전용 편집기 /write) */
+export const adminNewPost = "/write"
+export const adminEditPost = (slug: string) => `/write?slug=${encodeURIComponent(slug)}`

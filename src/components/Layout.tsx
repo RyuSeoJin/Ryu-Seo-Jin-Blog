@@ -54,7 +54,7 @@ function WriteButton() {
   const owner = useIsOwner()
   if (!owner) return null
   return (
-    <a className="write-btn" href={adminNewPost} title="새 글 쓰기 (관리자)">
+    <a className="write-btn" href={adminNewPost} title="새 글 쓰기">
       <PenIcon /> <span>글쓰기</span>
     </a>
   )

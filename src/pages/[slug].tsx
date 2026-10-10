@@ -10,7 +10,7 @@ import { getListedPosts, getPostSource, getReachablePosts, type PostMeta } from 
 type Props = { post: PostMeta; html: string; headings: Heading[]; prev: Nav; next: Nav }
 
 // 사이트의 다른 주소와 겹치는 이름은 글 주소로 쓰지 않습니다
-const RESERVED = new Set(["about", "fx", "admin", "feed", "guestbook"])
+const RESERVED = new Set(["about", "fx", "admin", "feed", "guestbook", "write"])
 
 export const getStaticPaths: GetStaticPaths = async () => ({
   paths: getReachablePosts().filter((p) => !RESERVED.has(p.slug)).map((p) => ({ params: { slug: p.slug } })),

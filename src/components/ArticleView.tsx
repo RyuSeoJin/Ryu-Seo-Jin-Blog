@@ -40,7 +40,7 @@ export default function ArticleView({ post, html, prev, next, onNavigate, onTag,
           <time dateTime={post.date}>{post.date.replace(/-/g, ".")}</time>
           <span className="dot" />읽는 데 {post.readMinutes}분
           {owner && (
-            <a className="edit-link" href={adminEditPost(post.slug)} title="관리자 화면에서 이 글 수정">
+            <a className="edit-link" href={adminEditPost(post.slug)} title="글쓰기 화면에서 이 글 고치기">
               <PenIcon /> 이 글 수정
             </a>
           )}
