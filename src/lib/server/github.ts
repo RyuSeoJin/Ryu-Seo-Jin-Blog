@@ -136,7 +136,14 @@ export async function gql<T = any>(token: string, query: string, variables: obje
   })
   if (r.status === 401) throw new HttpError(401, "로그인이 만료됐어요. 다시 로그인해 주세요.")
   const d = await r.json()
-  if (d.errors?.length) throw new HttpError(400, d.errors[0].message)
+  if (d.errors?.length) {
+    console.error("[comments] github graphql error:", r.status, JSON.stringify(d.errors).slice(0, 500))
+    throw new HttpError(400, `GitHub 오류 (${d.errors[0].type || r.status}): ${d.errors[0].message}`)
+  }
+  if (!r.ok || !d.data) {
+    console.error("[comments] github graphql http error:", r.status, JSON.stringify(d).slice(0, 300))
+    throw new HttpError(502, `GitHub 응답 오류 (${r.status}): ${d.message || "알 수 없음"}`)
+  }
   return d.data
 }
 
@@ -191,6 +198,8 @@ export function sameOrigin(req: NextApiRequest): boolean {
 
 export function fail(res: NextApiResponse, e: unknown) {
   const status = e instanceof HttpError ? e.status : 500
+  // Vercel 로그에서 원인을 찾을 수 있게 남깁니다
+  console.error("[comments] request failed:", status, e instanceof Error ? e.message : e)
   if (status === 401) signOut(res)
   res.status(status).json({ error: e instanceof Error ? e.message : "알 수 없는 오류가 났어요." })
 }
