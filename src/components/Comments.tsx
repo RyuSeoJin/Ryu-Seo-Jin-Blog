@@ -3,7 +3,7 @@ import { useCallback, useEffect, useMemo, useRef, useState, type KeyboardEvent }
 import { createPortal } from "react-dom"
 import { CONFIG } from "site.config"
 import {
-  fetchThread, MAX_LEN, postComment, react, REACTION_KINDS, removeComment, stamp, voteChange,
+  editComment, fetchThread, MAX_LEN, postComment, react, REACTION_KINDS, removeComment, stamp, voteChange,
   type Comment, type Reaction, type Thread,
 } from "src/lib/comments"
 import { refreshCommunity } from "src/lib/community"
@@ -108,6 +108,12 @@ export default function Comments({ term, title = "댓글", composeOnly, discussi
     }
   }
 
+  const onEdit = async (c: Comment, body: string) => {
+    const { comment } = await editComment(c.id, body)
+    patch(c.id, (x) => ({ ...x, body: comment.body, edited: true }))
+    refreshCommunity()
+  }
+
   const onDelete = async (c: Comment) => {
     if (!confirm("이 댓글을 지울까요? 지운 댓글은 되돌릴 수 없어요.")) return
     try {
@@ -167,7 +173,7 @@ export default function Comments({ term, title = "댓글", composeOnly, discussi
       <NoteDetail onClose={() => onClose?.()}>
         {c ? (
           <ul className="cmt-list">
-            <Item c={c} viewer={viewer} onReact={onReact} onDelete={(x) => { onClose?.(); onDelete(x) }} onReply={(b) => onPost(b, c.id)} defaultOpen />
+            <Item c={c} viewer={viewer} onReact={onReact} onEdit={onEdit} onDelete={(x) => { onClose?.(); onDelete(x) }} onReply={(b) => onPost(b, c.id)} defaultOpen />
           </ul>
         ) : (
           <p className="cmt-empty">{status === "error" ? "포스트잇을 불러오지 못했어요." : status === "loading" ? "불러오는 중…" : "지워진 포스트잇이에요."}</p>
@@ -254,7 +260,7 @@ export default function Comments({ term, title = "댓글", composeOnly, discussi
               c={c}
               best={isBest(c, i)}
               viewer={viewer}
-              onReact={onReact}
+              onReact={onReact} onEdit={onEdit}
               onDelete={onDelete}
               onReply={(b) => onPost(b, c.id)}
             />
@@ -270,7 +276,7 @@ export default function Comments({ term, title = "댓글", composeOnly, discussi
         return (
           <NoteDetail onClose={() => setOpenId(null)}>
             <ul className="cmt-list">
-              <Item c={c} viewer={viewer} onReact={onReact} onDelete={(x) => { setOpenId(null); onDelete(x) }} onReply={(b) => onPost(b, c.id)} defaultOpen />
+              <Item c={c} viewer={viewer} onReact={onReact} onEdit={onEdit} onDelete={(x) => { setOpenId(null); onDelete(x) }} onReply={(b) => onPost(b, c.id)} defaultOpen />
             </ul>
           </NoteDetail>
         )
@@ -367,11 +373,12 @@ function NoteDetail({ onClose, children }: { onClose: () => void; children: Reac
   )
 }
 
-function Item({ c, best, viewer, onReact, onDelete, onReply, isReply, defaultOpen }: {
+function Item({ c, best, viewer, onReact, onEdit, onDelete, onReply, isReply, defaultOpen }: {
   c: Comment
   best?: boolean
   viewer: Viewer | null
   onReact: (c: Comment, kind: "up" | "down") => void
+  onEdit: (c: Comment, body: string) => Promise<void>
   onDelete: (c: Comment) => void
   onReply?: (body: string) => Promise<void>
   isReply?: boolean
@@ -380,6 +387,7 @@ function Item({ c, best, viewer, onReact, onDelete, onReply, isReply, defaultOpe
 }) {
   const [open, setOpen] = useState(!!defaultOpen)
   const [menu, setMenu] = useState(false)
+  const [editing, setEditing] = useState(false)
   const menuRef = useRef<HTMLDivElement>(null)
   const a = c.author
   const owner = a?.login.toLowerCase() === OWNER
@@ -400,22 +408,27 @@ function Item({ c, best, viewer, onReact, onDelete, onReply, isReply, defaultOpe
             {a ? <a href={a.url} target="_blank" rel="noopener noreferrer">{a.login}</a> : "알 수 없음"}
             {owner && <em className="cmt-badge">주인장</em>}
           </span>
-          <time dateTime={c.createdAt}>{stamp(c.createdAt)}</time>
+          <time dateTime={c.createdAt}>{stamp(c.createdAt)}{c.edited && <span className="cmt-edited"> (수정됨)</span>}</time>
         </div>
         <div className="cmt-menu" ref={menuRef}>
           <button onClick={() => setMenu(!menu)} aria-label="더보기" aria-haspopup="menu" aria-expanded={menu}><MoreIcon /></button>
           {menu && (
             <div role="menu">
               <a role="menuitem" href={c.url} target="_blank" rel="noopener noreferrer">GitHub에서 보기</a>
+              {c.canEdit && <button role="menuitem" onClick={() => { setMenu(false); setEditing(true) }}>수정</button>}
               {c.canDelete && <button role="menuitem" onClick={() => { setMenu(false); onDelete(c) }}>삭제</button>}
             </div>
           )}
         </div>
       </div>
-      <p className="cmt-body">
-        {best && <em className="cmt-best">BEST</em>}
-        {c.body || <span className="cmt-deleted">삭제된 댓글입니다.</span>}
-      </p>
+      {editing ? (
+        <EditBox initial={c.body} onCancel={() => setEditing(false)} onSave={async (b) => { await onEdit(c, b); setEditing(false) }} />
+      ) : (
+        <p className="cmt-body">
+          {best && <em className="cmt-best">BEST</em>}
+          {c.body || <span className="cmt-deleted">삭제된 댓글입니다.</span>}
+        </p>
+      )}
       <div className="cmt-actions">
         {!isReply && (
           <button className="cmt-chip" aria-expanded={open} onClick={() => setOpen(!open)}>답글 {c.replyCount}</button>
@@ -430,7 +443,7 @@ function Item({ c, best, viewer, onReact, onDelete, onReply, isReply, defaultOpe
           {c.replies.length > 0 && (
             <ul className="cmt-list">
               {c.replies.map((r) => (
-                <Item key={r.id} c={r} viewer={viewer} onReact={onReact} onDelete={onDelete} isReply />
+                <Item key={r.id} c={r} viewer={viewer} onReact={onReact} onEdit={onEdit} onDelete={onDelete} isReply />
               ))}
             </ul>
           )}
@@ -438,5 +451,52 @@ function Item({ c, best, viewer, onReact, onDelete, onReply, isReply, defaultOpe
         </div>
       )}
     </li>
+  )
+}
+
+/** 내 댓글 고치기: 그 자리에서 입력칸으로 바뀝니다 */
+function EditBox({ initial, onCancel, onSave }: { initial: string; onCancel: () => void; onSave: (body: string) => Promise<void> }) {
+  const [text, setText] = useState(initial)
+  const [busy, setBusy] = useState(false)
+  const [error, setError] = useState("")
+  const ref = useRef<HTMLTextAreaElement>(null)
+  useEffect(() => {
+    const t = ref.current
+    if (t) { t.focus(); t.setSelectionRange(t.value.length, t.value.length) }
+  }, [])
+  const save = async () => {
+    const body = text.trim()
+    if (!body) return setError("내용을 적어 주세요.")
+    if (body === initial.trim()) return onCancel()
+    setBusy(true)
+    setError("")
+    try {
+      await onSave(body)
+    } catch (e: any) {
+      setError(e.message)
+      setBusy(false)
+    }
+  }
+  return (
+    <div className="cmt-composer cmt-edit">
+      <textarea
+        ref={ref}
+        value={text}
+        maxLength={MAX_LEN}
+        rows={3}
+        onChange={(e) => { setText(e.target.value); if (error) setError("") }}
+        onKeyDown={(e) => {
+          if (e.key === "Enter" && (e.ctrlKey || e.metaKey)) { e.preventDefault(); save() }
+          if (e.key === "Escape") { e.stopPropagation(); onCancel() }
+        }}
+        aria-label="댓글 고치기"
+      />
+      <div className="cmt-composer-foot">
+        {error ? <span className="cmt-error" role="alert">{error}</span> : <span>Ctrl+Enter 저장 · Esc 취소</span>}
+        <span className="cmt-count">{text.length}/{MAX_LEN}</span>
+        <button type="button" className="cmt-chip" onClick={onCancel} disabled={busy}>취소</button>
+        <button type="button" className="cmt-chip cmt-edit-save" onClick={save} disabled={busy || !text.trim()}>{busy ? "저장 중…" : "저장"}</button>
+      </div>
+    </div>
   )
 }

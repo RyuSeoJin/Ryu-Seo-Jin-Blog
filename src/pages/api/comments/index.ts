@@ -1,27 +1,7 @@
 import type { NextApiRequest, NextApiResponse } from "next"
 import { MAX_LEN, REACTION_KINDS, type Comment, type Reaction, type Thread } from "src/lib/comments"
+import { FIELDS, toComment } from "src/lib/server/commentShape"
 import { appToken, ensureDiscussion, fail, findDiscussion, getAuth, gql, HttpError, sameOrigin, signOut, validTerm } from "src/lib/server/github"
-
-const FIELDS = `id databaseId url body createdAt deletedAt viewerCanDelete author{login avatarUrl(size:80) url} reactionGroups{content viewerHasReacted reactors{totalCount}}`
-
-function toComment(n: any, canDelete: boolean): Comment {
-  const g = (c: string) => n.reactionGroups?.find((x: any) => x.content === c)
-  return {
-    id: n.id,
-    dbId: n.databaseId,
-    url: n.url,
-    body: n.deletedAt ? "" : n.body,
-    createdAt: n.createdAt,
-    author: n.author ? { login: n.author.login, avatarUrl: n.author.avatarUrl, url: n.author.url } : null,
-    up: g("THUMBS_UP")?.reactors.totalCount ?? 0,
-    down: g("THUMBS_DOWN")?.reactors.totalCount ?? 0,
-    myUp: !!g("THUMBS_UP")?.viewerHasReacted,
-    myDown: !!g("THUMBS_DOWN")?.viewerHasReacted,
-    canDelete: canDelete && !!n.viewerCanDelete && !n.deletedAt,
-    replyCount: n.replies?.totalCount ?? 0,
-    replies: (n.replies?.nodes ?? []).filter((r: any) => !r.deletedAt).map((r: any) => toComment(r, canDelete)),
-  }
-}
 
 /**
  * GET  /api/comments?term=글주소     → 댓글 목록 (로그인했으면 내 반응·삭제 가능 여부 포함)
@@ -58,7 +38,7 @@ async function read(req: NextApiRequest, res: NextApiResponse): Promise<Thread> 
     d = await gql(await appToken(), query, { id })
   }
   const nodes: any[] = d.node.comments.nodes.filter((n: any) => !n.deletedAt || n.replies?.totalCount)
-  const comments = nodes.map((n) => toComment(n, !!auth))
+  const comments = nodes.map((n) => toComment(n, auth?.viewer.login ?? null))
   const total = comments.length + comments.reduce((s, c) => s + c.replies.length, 0)
   const reactions: Reaction[] = REACTION_KINDS.map(([content]) => {
     const g = d.node.reactionGroups?.find((x: any) => x.content === content)
@@ -84,5 +64,5 @@ async function write(req: NextApiRequest, res: NextApiResponse): Promise<{ comme
     `mutation($d:ID!,$b:String!,$r:ID){addDiscussionComment(input:{discussionId:$d,body:$b,replyToId:$r}){comment{${FIELDS}}}}`,
     { d: discussionId, b: text, r: replyTo ?? null }
   )
-  return { comment: toComment({ ...d.addDiscussionComment.comment, replies: { totalCount: 0, nodes: [] } }, true) }
+  return { comment: toComment({ ...d.addDiscussionComment.comment, replies: { totalCount: 0, nodes: [] } }, auth.viewer.login) }
 }

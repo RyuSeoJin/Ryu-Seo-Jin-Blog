@@ -8,12 +8,15 @@ export type Comment = {
   url: string
   body: string
   createdAt: string
+  /** 쓴 뒤 고친 적이 있는지 */
+  edited: boolean
   author: Author | null
   up: number
   down: number
   myUp: boolean
   myDown: boolean
   canDelete: boolean
+  canEdit: boolean
   replyCount: number
   replies: Comment[]
 }
@@ -41,6 +44,7 @@ export const postComment = (term: string, body: string, replyTo?: string) => cal
 /** 댓글(id)이나 토론 전체(term)에 반응 누르기/취소 */
 export const react = (target: { id: string } | { term: string }, content: string, on: boolean) => call<{ ok: true }>("/api/comments/react", { ...target, content, on })
 export const removeComment = (id: string) => call<{ ok: true }>("/api/comments/delete", { id })
+export const editComment = (id: string, body: string) => call<{ comment: Comment }>("/api/comments/edit", { id, body })
 
 /** 좋아요·싫어요 누르기: 바뀐 숫자와 보내야 할 요청. 둘은 하나만 — 반대쪽이 눌려 있으면 함께 취소합니다. */
 export function voteChange(c: Comment, kind: "up" | "down") {

@@ -761,3 +761,8 @@ main.page-in { animation: rise-in 0.35s cubic-bezier(0.2, 0.7, 0.2, 1) both; }
   .write-editor .bn-editor { padding-inline: 20px 0; }
   .write-mode { display: none; }
 }
+/* 댓글 고치기 */
+.cmt-edit { margin-top: 10px; }
+.cmt-edit-save { background: var(--accent-btn) !important; border-color: transparent !important; color: #fff !important; font-weight: 700; }
+.cmt-edit-save:disabled { opacity: 0.5; }
+.cmt-edited { color: var(--muted); font-size: 11.5px; }
