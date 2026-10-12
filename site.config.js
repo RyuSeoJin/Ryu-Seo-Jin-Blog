@@ -1,0 +1,53 @@
+const CONFIG = {
+  // 프로필
+  profile: {
+    name: "류서진",
+    nameEn: "Ryu Seo Jin",
+    image: "/RyuSeoJin_Black.svg",
+    role: "레벨 디자이너",
+    bio: "동선과 시선 유도, 플로우를 고려한 공간 디자인을 지향합니다.",
+    email: "fbwls0218@gmail.com",
+    linkedin: "RyuSeoJin",
+    github: "RyuSeoJin",
+  },
+  // 사이드바 "도구" 목록
+  projects: [
+    { name: "도트 이펙트 작업대", href: "/fx" },
+  ],
+  // 사이드바 "GitHub 레포" 카드 (공개 저장소 이름. note 를 적으면 GitHub 소개 대신 그 문구를 보여 줌)
+  repos: [
+    { name: "rsj-centralized-control" },
+  ],
+  // 메인 상단 방명록 띠 맨 앞에 늘 붙어 있는 주인장 포스트잇
+  guestbookPinned: "들러 주셔서 고마워요! 한마디 남겨 주세요.",
+  // 메인 "기록" 위쪽 카드 두 개 (글 주소 slug)
+  featured: {
+    project: "teamproject-lakaya", // 대표 프로젝트
+    pick: "wiki-study-light-colors-and-emotions", // 추천 글
+  },
+  blog: {
+    title: "Ryu Seo Jin",
+    description: "레벨 디자이너 류서진의 공부 기록과 포트폴리오",
+    scheme: "dark", // 처음 방문했을 때의 테마: 'light' | 'dark' | 'system'
+  },
+  link: "https://ryuseojin.com",
+  since: 2022,
+  lang: "ko-KR",
+
+  // 댓글 저장소: GitHub Discussions (글 하나 = 토론 하나, 방명록 = "guestbook" 토론)
+  // repoId·categoryId 는 공개값입니다. 방문자 로그인용 GitHub App 값은 Vercel 환경 변수에 둡니다.
+  giscus: {
+    enable: true,
+    repo: "RyuSeoJin/Ryu-Seo-Jin-Blog",
+    repoId: "R_kgDOQ6XffA",
+    category: "Announcements",
+    categoryId: "DIC_kwDOQ6XffM4DHZTH",
+  },
+  // 웹 관리자 화면 (/admin)
+  cms: {
+    repo: "RyuSeoJin/Ryu-Seo-Jin-Blog",
+    branch: "main",
+  },
+}
+
+module.exports = { CONFIG }
