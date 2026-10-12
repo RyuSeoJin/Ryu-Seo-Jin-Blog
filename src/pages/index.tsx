@@ -123,7 +123,8 @@ export default function Home({ posts, categories, repos }: Props) {
 
   // 연·월로 묶고, 같은 달에 같은 분류 글이 2편 이상이면 "Unity 6편"처럼 표시합니다
   const byMonth = useMemo(() => {
-    const list = filtering ? filtered : filtered.filter((p) => p.slug !== latest?.slug)
+    // 최신 글도 위 카드와 별개로 월별 목록에 함께 둡니다 (목록만 훑어봐도 빠짐없이 보이게)
+    const list = filtered
     const m = new Map<string, PostMeta[]>()
     list.forEach((p) => {
       const k = p.date.slice(0, 7) || "날짜 없음"
@@ -135,7 +136,7 @@ export default function Home({ posts, categories, repos }: Props) {
       const top = [...c].sort((a, b) => b[1] - a[1])[0]
       return { month: month.replace("-", "."), items, series: top && top[1] >= 2 ? `${splitCategory(top[0]).text} ${top[1]}편` : "" }
     })
-  }, [filtered, filtering, latest])
+  }, [filtered])
 
   const community = useCommunity()
   const counts = community.data?.commentCounts || {}
