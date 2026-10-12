@@ -1,3 +1,16 @@
+---
+title: "[깃허브] rsj-centralized-control — 여러 저장소가 함께 쓰는 중앙 규칙 저장소"
+slug: "github-rsj-centralized-control"
+date: "2026-10-12"
+type: "Post"
+status: "public"
+category: "💠깃허브"
+tags: ["98::폴더관리::깃허브"]
+summary: "문서 제작·이력·git 규칙을 한 곳에서 고치고 여러 작업 저장소가 받아 쓰도록 만든 중앙 규칙 저장소 소개"
+thumbnail: ""
+---
+> 📦 GitHub 저장소: [RyuSeoJin/rsj-centralized-control](https://github.com/RyuSeoJin/rsj-centralized-control)
+
 ## 한 줄로
 
 여러 작업 저장소가 **같은 규칙으로 문서를 만들고 운영되도록**, 그 규칙을 한 곳에 모아 두고 나눠 주는 **중앙 규칙 저장소**입니다.

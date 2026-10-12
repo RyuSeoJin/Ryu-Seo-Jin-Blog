@@ -38,7 +38,7 @@ thumbnail: ""                   # 예) /images/posts/<주소>/thumb.webp
 | 경로 | 내용 |
 |---|---|
 | `content/posts/` | 글 마크다운 |
-| `content/repos/` | GitHub 레포 소개글 (/repo/<이름>) |
+| `content/repos/` | (선택) GitHub 레포 소개글. 보통은 `site.config.js` 의 repos.post 로 블로그 글을 소개글로 씁니다 |
 | `public/images/` | 글 이미지 (노션에서 옮긴 것은 `posts/`, 관리자 화면 업로드는 `uploads/`) |
 | `public/fx/` | 도트 이펙트 작업대 (/fx) |
 | `public/admin/` | 웹 관리자 화면 (Decap CMS) |

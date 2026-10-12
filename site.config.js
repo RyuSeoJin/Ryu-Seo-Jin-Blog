@@ -14,9 +14,11 @@ const CONFIG = {
   projects: [
     { name: "도트 이펙트 작업대", href: "/fx" },
   ],
-  // 사이드바 "GitHub 레포" 카드 (공개 저장소 이름. note 를 적으면 GitHub 소개 대신 그 문구를 보여 줌)
+  // 사이드바 "GitHub 레포" 카드 (공개 저장소 이름)
+  //  - note: GitHub 소개 대신 카드에 보여 줄 문구
+  //  - post: 소개글로 쓸 블로그 글 주소 (그 글이 "기록"에도 올라가고, 레포 소개 화면 본문이 됨)
   repos: [
-    { name: "rsj-centralized-control" },
+    { name: "rsj-centralized-control", post: "github-rsj-centralized-control" },
   ],
   // 메인 상단 방명록 띠 맨 앞에 늘 붙어 있는 주인장 포스트잇
   guestbookPinned: "들러 주셔서 고마워요! 한마디 남겨 주세요.",

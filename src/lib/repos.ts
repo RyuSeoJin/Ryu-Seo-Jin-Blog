@@ -7,6 +7,7 @@ import fs from "fs"
 import path from "path"
 import { CONFIG } from "site.config"
 import { renderMarkdown, type Heading } from "./markdown"
+import { getPostSource } from "./posts"
 
 export type RepoCard = {
   name: string
@@ -19,7 +20,7 @@ export type RepoCard = {
   branch: string
 }
 
-type RepoConfig = { name: string; owner?: string; note?: string }
+type RepoConfig = { name: string; owner?: string; note?: string; post?: string }
 
 export async function getRepos(): Promise<RepoCard[]> {
   const list: RepoConfig[] = (CONFIG as any).repos || []
@@ -56,15 +57,20 @@ export type RepoPage = { repo: RepoCard; html: string; headings: Heading[]; read
 
 /**
  * 레포 소개글.
- * content/repos/이름.md 에 블로그용 소개(왜 만들었나 · 어떻게 쓰나)가 있으면 그걸 먼저 보여 주고 README 는 접어 둡니다.
+ * 설정의 post(블로그 글)나 content/repos/이름.md 에 소개(왜 만들었나 · 어떻게 쓰나)가 있으면 그걸 먼저 보여 주고 README 는 접어 둡니다.
  * 없으면 README 를 본문으로 씁니다. README 의 상대 경로 이미지·링크는 GitHub 주소로 고칩니다.
  */
 export async function getRepoPage(name: string): Promise<RepoPage | null> {
   const base = await getReadmePage(name)
   if (!base) return null
+  // 소개글: 설정의 post(블로그 글) → content/repos/이름.md → 없으면 README
+  const cfg = ((CONFIG as any).repos || []).find((r: RepoConfig) => r.name === name) as RepoConfig | undefined
+  const fromPost = cfg?.post ? getPostSource(cfg.post)?.content : undefined
   const file = path.join(process.cwd(), "content", "repos", `${name}.md`)
-  if (!fs.existsSync(file)) return { repo: base.repo, html: base.html, headings: base.headings, readme: "" }
-  const intro = await renderMarkdown(fs.readFileSync(file, "utf8"))
+  const md = fromPost ?? (fs.existsSync(file) ? fs.readFileSync(file, "utf8") : undefined)
+  if (md === undefined) return { repo: base.repo, html: base.html, headings: base.headings, readme: "" }
+  // 블로그 글 맨 위의 "GitHub 저장소" 안내 줄은 레포 화면 머리말과 겹치므로 뺍니다
+  const intro = await renderMarkdown(md.replace(/^\s*>\s*📦[^\n]*\n+/, ""))
   return { repo: base.repo, html: intro.html, headings: intro.headings, readme: base.html }
 }
 
