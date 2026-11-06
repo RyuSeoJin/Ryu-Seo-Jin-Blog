@@ -19,7 +19,7 @@ const CONFIG = {
   //  - post: 소개글로 쓸 블로그 글 주소 (그 글이 "기록"에도 올라가고, 레포 소개 화면 본문이 됨)
   repos: [
     { name: "rsj-centralized-control", post: "github-rsj-centralized-control" },
-    { name: "markcont", post: "github-markcont" },
+    { name: "markcont", post: "github-markcont", note: "마크다운 뷰어 · 편집기" },
   ],
   // 메인 상단 방명록 띠 맨 앞에 늘 붙어 있는 주인장 포스트잇
   guestbookPinned: "들러 주셔서 고마워요! 한마디 남겨 주세요.",
