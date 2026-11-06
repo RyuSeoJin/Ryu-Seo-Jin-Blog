@@ -69,8 +69,10 @@ export async function getRepoPage(name: string): Promise<RepoPage | null> {
   const file = path.join(process.cwd(), "content", "repos", `${name}.md`)
   const md = fromPost ?? (fs.existsSync(file) ? fs.readFileSync(file, "utf8") : undefined)
   if (md === undefined) return { repo: base.repo, html: base.html, headings: base.headings, readme: "" }
-  // 블로그 글 맨 위의 "GitHub 저장소" 안내 줄은 레포 화면 머리말과 겹치므로 뺍니다
-  const intro = await renderMarkdown(md.replace(/^\s*>\s*📦[^\n]*\n+/, ""))
+  // 블로그 글 맨 위의 저장소 링크 안내(인용 상자)는 레포 화면 머리말과 겹치므로 뺍니다
+  const lead = md.match(/^\s*(?:>[^\n]*\n)+\n*/)
+  const body = lead && /github\.com/.test(lead[0]) ? md.slice(lead[0].length) : md
+  const intro = await renderMarkdown(body)
   return { repo: base.repo, html: intro.html, headings: intro.headings, readme: base.html }
 }
 
